@@ -1,0 +1,28 @@
+.card {
+  width: 480px;
+  padding: 16px;
+  border-radius: 16px;
+
+  background-color: lightgray;
+}
+
+.graph {
+  max-width: 100%;
+
+  input {
+    width: 100%;
+  }
+
+  .min-max-container {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.bound {
+  display: flex;
+
+  .number {
+    width: 64px;
+  }
+}
