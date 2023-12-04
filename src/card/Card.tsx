@@ -1,14 +1,28 @@
-import butterfly from "./butterfly.jpg";
+import graph from "./graph.png";
 import styles from "./Card.module.css";
 
 export function Card() {
   return (
     <div className={styles.card}>
       <input placeholder="Step" type="text" />
-      <br />
-      Probability of success:{" "}
-      <input max={100} min={0} type="number" defaultValue={25} />%
+      <ProbabilityOfSuccess />
       <Graph />
+    </div>
+  );
+}
+
+function ProbabilityOfSuccess() {
+  return (
+    <div>
+      Probability of success:{" "}
+      <input
+        className={styles["probability-input"]}
+        defaultValue={25}
+        max={100}
+        min={0}
+        type="number"
+      />
+      %
     </div>
   );
 }
@@ -16,7 +30,7 @@ export function Card() {
 function Graph() {
   return (
     <div className={styles.graph}>
-      <img alt="A pretty butterfly" className={styles.graph} src={butterfly} />
+      <img alt="A pretty graph" className={styles.graph} src={graph} />
       Skew
       <input type="range" />
       <div className={styles["min-max-container"]}>
