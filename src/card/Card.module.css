@@ -1,16 +1,38 @@
 .card {
-  width: 360px;
-  padding: 16px;
-  border-radius: 16px;
-
   background-color: lightgray;
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  width: 240px;
+
+  &:hover > .x-button {
+    visibility: visible;
+  }
 }
 
-.probability-input {
-  width: 48px;
+.x-button {
+  cursor: pointer;
+  height: 32px;
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  visibility: hidden;
+  width: 32px;
 }
 
-.graph {
+.step-name {
+  margin-bottom: 4px;
+}
+
+.probability-of-success {
+  margin-bottom: 4px;
+
+  .probability-input {
+    width: 48px;
+  }
+}
+
+.time-to-completion {
   max-width: 100%;
 
   input {
@@ -18,7 +40,6 @@
   }
 
   img {
-    background-color: white;
     width: 100%;
   }
 
@@ -30,6 +51,7 @@
 
 .bound {
   display: flex;
+  flex-direction: column;
 
   .number {
     width: 64px;

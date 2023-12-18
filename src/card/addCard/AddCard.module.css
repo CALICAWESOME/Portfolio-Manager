@@ -1,0 +1,24 @@
+.add-card {
+  align-items: center;
+  align-self: stretch;
+  border: 2px lightgray dashed;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  width: 268px;
+
+  .svg {
+    height: 64px;
+    color: lightgray;
+    width: 64px;
+  }
+
+  &:hover {
+    border-color: green;
+
+    > * {
+      color: green;
+    }
+  }
+}

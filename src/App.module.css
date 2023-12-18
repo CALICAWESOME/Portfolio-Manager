@@ -1,4 +1,16 @@
-.app {
-  padding: 64px;
+* {
+  font: 12px Helvetica;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  background-color: white;
   display: flex;
+  gap: 16px;
+  overflow: auto;
+  padding: 16px;
+  width: 100%;
 }
