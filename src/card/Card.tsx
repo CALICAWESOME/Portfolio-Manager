@@ -1,7 +1,7 @@
 import { ReactComponent as DeleteButtonSVG } from "./cancel.svg";
 import graph from "./graph.png";
 import styles from "./Card.module.css";
-import { Step } from "../App";
+import { Step } from "../types";
 
 export function Card(props: { onDelete: () => void; step: Step }) {
   return (

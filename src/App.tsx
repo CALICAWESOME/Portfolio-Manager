@@ -1,79 +1,24 @@
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "./App.module.css";
 import { Card } from "./card/Card";
 import { AddCard } from "./card/addCard/AddCard";
-
-export type Step = {
-  name: string;
-  probabilityOfSuccess: number;
-  timeDistribution: {
-    lowerBound: number;
-    upperBound: number;
-    skew: number;
-  };
-};
-
-const defaultState: { steps: { [id: string]: Step }; stepsOrder: string[] } = {
-  steps: {
-    default1: {
-      name: "Assay Development",
-      probabilityOfSuccess: 0.75,
-      timeDistribution: {
-        lowerBound: 6,
-        upperBound: 12,
-        skew: 0,
-      },
-    },
-    default2: {
-      name: "Screening",
-      probabilityOfSuccess: 0.95,
-      timeDistribution: {
-        lowerBound: 3,
-        upperBound: 6,
-        skew: 0,
-      },
-    },
-  },
-  stepsOrder: ["default1", "default2"],
-};
-
-const newStep: Step = {
-  name: "New Step",
-  probabilityOfSuccess: 0.95,
-  timeDistribution: {
-    lowerBound: 3,
-    upperBound: 6,
-    skew: 0,
-  },
-};
+import { RootState } from "./store";
+import { addStep, deleteStep } from "./stepsSlice";
 
 function App() {
-  const [state, setState] = useState(defaultState);
+  const dispatch = useDispatch();
+  const state = useSelector((state: RootState) => state.steps);
 
   return (
     <div className={styles.container}>
       {state.stepsOrder.map((stepId, index) => (
         <Card
           key={index + state.steps[stepId].name + ""}
-          onDelete={() =>
-            setState((state) => ({
-              ...state,
-              stepsOrder: state.stepsOrder.filter(
-                (_, otherIndex) => index !== otherIndex
-              ),
-            }))
-          }
+          onDelete={() => dispatch(deleteStep(stepId))}
           step={state.steps[stepId]}
         />
       ))}
-      <AddCard
-        onClick={() =>
-          setState((state) => ({
-            steps: { ...state.steps, newStep },
-            stepsOrder: [...state.stepsOrder, "newStep"],
-          }))
-        }
-      />
+      <AddCard onClick={() => dispatch(addStep())} />
     </div>
   );
 }
