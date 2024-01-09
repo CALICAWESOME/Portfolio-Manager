@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { Step } from "./types";
+import { Step, Steps } from "./types";
 
 const defaultStep: Step = {
   name: "New Step",
@@ -11,7 +11,7 @@ const defaultStep: Step = {
   },
 };
 
-const defaultSteps: { steps: { [id: string]: Step }; stepsOrder: string[] } = {
+const defaultSteps: { steps: Steps; stepsOrder: string[] } = {
   steps: {
     default1: {
       name: "Assay Development",

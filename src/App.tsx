@@ -4,6 +4,7 @@ import { Card } from "./card/Card";
 import { AddCard } from "./card/addCard/AddCard";
 import { RootState } from "./store";
 import { addStep, deleteStep } from "./stepsSlice";
+import { Output } from "./output";
 
 function App() {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ function App() {
         />
       ))}
       <AddCard onClick={() => dispatch(addStep())} />
+      <Output steps={state.steps} stepsOrder={state.stepsOrder} />
     </div>
   );
 }

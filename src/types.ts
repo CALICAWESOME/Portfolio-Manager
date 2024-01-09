@@ -7,3 +7,5 @@ export type Step = {
     skew: number;
   };
 };
+
+export type Steps = { [id: string]: Step };
