@@ -2,9 +2,13 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
 import styles from "./Graph.module.css";
+import { erf } from "mathjs";
 
 const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
 const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
+const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
+const SKEWED_PDF = (x: number, skew: number) =>
+  2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
 export function Graph() {
   const ref = useRef<SVGSVGElement>(null);
@@ -29,7 +33,7 @@ export function Graph() {
       [marginLeft, width - marginRight]
     );
     const yScale = d3
-      .scaleLinear([0, STANDARD_PDF(0)], [height - marginBottom, marginTop])
+      .scaleLinear([0, 1], [height - marginBottom, marginTop])
       .nice();
 
     const line = d3
@@ -37,7 +41,7 @@ export function Graph() {
       // @ts-ignore
       .x((datum) => xScale(datum))
       // @ts-ignore
-      .y((datum) => yScale(STANDARD_PDF(datum)))
+      .y((datum) => yScale(SKEWED_PDF(datum, 5)))
       .curve(d3.curveBasis);
 
     // Add the x-axis.
