@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { erf } from "mathjs";
 
 import styles from "./Graph.module.css";
-import { erf } from "mathjs";
 
 const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
 const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
@@ -10,7 +10,7 @@ const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
 const SKEWED_PDF = (x: number, skew: number) =>
   2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
-export function Graph() {
+export function Graph(props: { skew: number }) {
   const ref = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export function Graph() {
       // @ts-ignore
       .x((datum) => xScale(datum))
       // @ts-ignore
-      .y((datum) => yScale(SKEWED_PDF(datum, 5)))
+      .y((datum) => yScale(SKEWED_PDF(datum, props.skew)))
       .curve(d3.curveBasis);
 
     // Add the x-axis.
@@ -64,10 +64,7 @@ export function Graph() {
       .attr("stroke-width", 2)
       // @ts-ignore
       .attr("d", line);
-
-    const bbox = ref.current.getBBox();
-    console.log(bbox);
-  }, []);
+  }, [props.skew]);
 
   return <svg className={styles.graph} ref={ref} />;
 }
