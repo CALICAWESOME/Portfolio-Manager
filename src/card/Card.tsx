@@ -40,7 +40,18 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           to
           <TimeBound default={props.step.timeDistribution.upperBound} />
         </div>
-        <Graph skew={skew} />
+        <Graph
+          skew={skew}
+          // data={[
+          //   [-1, 0.5],
+          //   [0, 0.75],
+          //   [1, 2.5],
+          // ]}
+          // xMax={2.75}
+          // xMin={-2.75}
+          // yMax={1}
+          // yMin={0}
+        />
         Skew
         <input
           min={-10}
