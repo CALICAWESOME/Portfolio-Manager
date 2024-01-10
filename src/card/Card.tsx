@@ -1,7 +1,7 @@
 import { ReactComponent as DeleteButtonSVG } from "./cancel.svg";
-import graph from "./graph.png";
 import styles from "./Card.module.css";
 import { Step } from "../types";
+import { Graph } from "./graph/Graph";
 
 export function Card(props: { onDelete: () => void; step: Step }) {
   return (
@@ -36,7 +36,7 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           to
           <TimeBound default={props.step.timeDistribution.upperBound} />
         </div>
-        <img alt="A pretty graph" src={graph} />
+        <Graph />
         Skew
         <input type="range" />
       </div>

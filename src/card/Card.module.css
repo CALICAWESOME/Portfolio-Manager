@@ -39,10 +39,6 @@
     width: 100%;
   }
 
-  img {
-    width: 100%;
-  }
-
   .min-max-container {
     display: flex;
     justify-content: space-between;
