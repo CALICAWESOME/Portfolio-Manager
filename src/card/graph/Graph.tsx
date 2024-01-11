@@ -40,9 +40,9 @@ export function Graph(props: { skew: number }) {
     const marginTop = 10;
     const width = svgDomRect.width;
 
-    const data = d3.range(-4, 4, 0.01).reduce(
+    const data = d3.range(0, 8, 0.01).reduce(
       (accumulator, x) => {
-        const y = SKEWED_PDF(x, -props.skew);
+        const y = SKEWED_PDF(x - 4, -props.skew);
 
         // Push coordinates to data
         accumulator.coordinates.push([x, y]);
@@ -66,8 +66,8 @@ export function Graph(props: { skew: number }) {
       },
       {
         coordinates: [] as [number, number][],
-        xMin: -3,
-        xMax: 3,
+        xMin: 1,
+        xMax: 5,
         yLast: 0,
         yMax: 0,
       }
@@ -85,12 +85,12 @@ export function Graph(props: { skew: number }) {
     // Add the x-axis.
     d3.select(xAxisRef.current)
       .attr("transform", `translate(0,${height - marginBottom})`)
-      .call(d3.axisBottom(xScale));
+      .call(d3.axisBottom(xScale).ticks(5));
 
     // Add the y-axis.
     d3.select(yAxisRef.current)
       .attr("transform", `translate(${marginSides},0)`)
-      .call(d3.axisLeft(yScale));
+      .call(d3.axisLeft(yScale).ticks(5));
 
     const line = d3
       .line()
