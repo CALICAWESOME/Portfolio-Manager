@@ -10,10 +10,7 @@ const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
 const SKEWED_PDF = (x: number, skew: number) =>
   2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
-d3.range(-3.5, 3.5, 0.01).map((x) => {
-  const y = SKEWED_PDF(x, 0);
-  console.log(x, y);
-});
+const Y_MIN = 0.0044318484119380075;
 
 export function Graph(props: { skew: number }) {
   const xAxisRef = useRef<SVGGElement>(null);
@@ -25,6 +22,7 @@ export function Graph(props: { skew: number }) {
       return;
     }
 
+    console.time();
     // Declare the chart dimensions and margins.
     const width = 240;
     const height = 150;
@@ -33,13 +31,47 @@ export function Graph(props: { skew: number }) {
     const marginBottom = 20;
     const marginLeft = 30;
 
-    const xScale = d3.scaleLinear(
-      [-2.71, 2.71],
-      [marginLeft, width - marginRight]
+    const data = d3.range(-4, 4, 0.01).reduce(
+      (accumulator, x) => {
+        const y = SKEWED_PDF(x, -props.skew);
+
+        // Push coordinates to data
+        accumulator.coordinates.push([x, y]);
+
+        // Find max y value for y-axis clamping
+        if (y > accumulator.yMax) {
+          accumulator.yMax = y;
+        }
+
+        if (accumulator.yLast < Y_MIN && Y_MIN <= y) {
+          accumulator.xMin = x;
+        }
+
+        if (accumulator.yLast >= Y_MIN && Y_MIN > y) {
+          accumulator.xMax = x;
+        }
+
+        accumulator.yLast = y;
+
+        return accumulator;
+      },
+      {
+        coordinates: [] as [number, number][],
+
+        xMin: -3,
+        xMax: 3,
+        yLast: 0,
+        yMax: 0,
+      }
     );
-    const yScale = d3
-      .scaleLinear([0, 1], [height - marginBottom, marginTop])
-      .nice();
+
+    const xScale = d3
+      .scaleLinear([data.xMin, data.xMax], [marginLeft, width - marginRight])
+      .clamp(true);
+    const yScale = d3.scaleLinear(
+      [0, data.yMax],
+      [height - marginBottom, marginTop]
+    );
 
     // Add the x-axis.
     d3.select(xAxisRef.current)
@@ -51,16 +83,19 @@ export function Graph(props: { skew: number }) {
       .attr("transform", `translate(${marginLeft},0)`)
       .call(d3.axisLeft(yScale));
 
-    const line = (d3.line() as d3.Line<number>)
-      .x((datum) => xScale(datum))
-      .y((datum) => yScale(SKEWED_PDF(datum, props.skew)))
-      .curve(d3.curveBasis)(d3.range(-2.71, 2.71, 0.01));
+    const line = d3
+      .line()
+      .x(([x, _]) => xScale(x))
+      .y(([_, y]) => yScale(y))
+      .curve(d3.curveBasis)(data.coordinates);
 
     d3.select(lineRef.current)
       .attr("d", line)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2);
+
+    console.timeEnd();
   }, [props.skew]);
 
   return (
