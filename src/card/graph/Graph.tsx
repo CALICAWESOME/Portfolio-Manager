@@ -13,23 +13,32 @@ const SKEWED_PDF = (x: number, skew: number) =>
 const Y_MIN = 0.0044318484119380075;
 
 export function Graph(props: { skew: number }) {
+  const lineRef = useRef<SVGPathElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const xAxisRef = useRef<SVGGElement>(null);
   const yAxisRef = useRef<SVGGElement>(null);
-  const lineRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
-    if (!(xAxisRef.current && yAxisRef.current && lineRef.current)) {
+    if (
+      !(
+        lineRef.current &&
+        svgRef.current &&
+        xAxisRef.current &&
+        yAxisRef.current
+      )
+    ) {
       return;
     }
 
+    const svgDomRect = svgRef.current.getBoundingClientRect();
+
     console.time();
     // Declare the chart dimensions and margins.
-    const width = 240;
-    const height = 150;
-    const marginTop = 10;
-    const marginRight = 10;
+    const height = svgDomRect.height;
     const marginBottom = 20;
-    const marginLeft = 30;
+    const marginSides = 30;
+    const marginTop = 10;
+    const width = svgDomRect.width;
 
     const data = d3.range(-4, 4, 0.01).reduce(
       (accumulator, x) => {
@@ -57,7 +66,6 @@ export function Graph(props: { skew: number }) {
       },
       {
         coordinates: [] as [number, number][],
-
         xMin: -3,
         xMax: 3,
         yLast: 0,
@@ -66,8 +74,9 @@ export function Graph(props: { skew: number }) {
     );
 
     const xScale = d3
-      .scaleLinear([data.xMin, data.xMax], [marginLeft, width - marginRight])
+      .scaleLinear([data.xMin, data.xMax], [marginSides, width - marginSides])
       .clamp(true);
+
     const yScale = d3.scaleLinear(
       [0, data.yMax],
       [height - marginBottom, marginTop]
@@ -80,7 +89,7 @@ export function Graph(props: { skew: number }) {
 
     // Add the y-axis.
     d3.select(yAxisRef.current)
-      .attr("transform", `translate(${marginLeft},0)`)
+      .attr("transform", `translate(${marginSides},0)`)
       .call(d3.axisLeft(yScale));
 
     const line = d3
@@ -99,7 +108,7 @@ export function Graph(props: { skew: number }) {
   }, [props.skew]);
 
   return (
-    <svg className={styles.graph}>
+    <svg className={styles.graph} ref={svgRef}>
       <g ref={xAxisRef} />
       <g ref={yAxisRef} />
       <path ref={lineRef} />

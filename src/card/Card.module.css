@@ -3,7 +3,7 @@
   border-radius: 16px;
   padding: 16px;
   position: relative;
-  width: 240px;
+  width: 260px;
 
   &:hover > .x-button {
     visibility: visible;
@@ -42,6 +42,7 @@
   .min-max-container {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 8px;
   }
 }
 
