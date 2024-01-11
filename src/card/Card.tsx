@@ -35,11 +35,6 @@ export function Card(props: { onDelete: () => void; step: Step }) {
       </div>
 
       <div className={styles["time-to-completion"]}>
-        <div className={styles["min-max-container"]}>
-          <TimeBound default={props.step.timeDistribution.lowerBound} />
-          to
-          <TimeBound default={props.step.timeDistribution.upperBound} />
-        </div>
         <Graph
           skew={skew}
           // data={[
@@ -52,7 +47,29 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           // yMax={1}
           // yMin={0}
         />
-        Skew
+        <div className={styles["min-max-container"]}>
+          <div className={styles.bound}>
+            <input
+              className={styles.number}
+              defaultValue={props.step.timeDistribution.lowerBound}
+              min={0}
+              type="number"
+            />
+          </div>{" "}
+          <select defaultValue={"days"}>
+            <option>days</option>
+            <option>weeks</option>
+            <option>months</option>
+          </select>
+          <div className={styles.bound}>
+            <input
+              className={styles.number}
+              defaultValue={props.step.timeDistribution.upperBound}
+              min={0}
+              type="number"
+            />
+          </div>
+        </div>
         <input
           min={-10}
           max={10}
@@ -61,25 +78,6 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           type="range"
         />
       </div>
-    </div>
-  );
-}
-
-function TimeBound(props: { default: number }) {
-  return (
-    <div className={styles.bound}>
-      <input
-        className={styles.number}
-        defaultValue={props.default}
-        min={0}
-        type="number"
-      />
-      <select defaultValue={"days"}>
-        <option>hours</option>
-        <option>days</option>
-        <option>weeks</option>
-        <option>months</option>
-      </select>
     </div>
   );
 }

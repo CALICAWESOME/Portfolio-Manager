@@ -42,7 +42,7 @@ export function Graph(props: { skew: number }) {
 
     const data = d3.range(0, 8, 0.01).reduce(
       (accumulator, x) => {
-        const y = SKEWED_PDF(x - 4, -props.skew);
+        const y = SKEWED_PDF(x - 4, props.skew);
 
         // Push coordinates to data
         accumulator.coordinates.push([x, y]);
@@ -52,29 +52,16 @@ export function Graph(props: { skew: number }) {
           accumulator.yMax = y;
         }
 
-        if (accumulator.yLast < Y_MIN && Y_MIN <= y) {
-          accumulator.xMin = x;
-        }
-
-        if (accumulator.yLast >= Y_MIN && Y_MIN > y) {
-          accumulator.xMax = x;
-        }
-
-        accumulator.yLast = y;
-
         return accumulator;
       },
       {
         coordinates: [] as [number, number][],
-        xMin: 1,
-        xMax: 5,
-        yLast: 0,
         yMax: 0,
       }
     );
 
     const xScale = d3
-      .scaleLinear([data.xMin, data.xMax], [marginSides, width - marginSides])
+      .scaleLinear([1, 7], [marginSides, width - marginSides])
       .clamp(true);
 
     const yScale = d3.scaleLinear(
@@ -100,7 +87,7 @@ export function Graph(props: { skew: number }) {
 
     d3.select(lineRef.current)
       .attr("d", line)
-      .attr("fill", "none")
+      .attr("fill", "lightblue")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2);
 
@@ -109,9 +96,9 @@ export function Graph(props: { skew: number }) {
 
   return (
     <svg className={styles.graph} ref={svgRef}>
+      <path ref={lineRef} />
       <g ref={xAxisRef} />
       <g ref={yAxisRef} />
-      <path ref={lineRef} />
     </svg>
   );
 }
