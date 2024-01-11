@@ -10,8 +10,6 @@ const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
 const SKEWED_PDF = (x: number, skew: number) =>
   2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
-const Y_MIN = 0.0044318484119380075;
-
 export function Graph(props: { skew: number }) {
   const lineRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);

@@ -1,9 +1,9 @@
 export type Step = {
   name: string;
   probabilityOfSuccess: number;
-  timeDistribution: {
-    lowerBound: number;
-    upperBound: number;
+  time: {
+    min: number;
+    max: number;
     skew: number;
   };
 };

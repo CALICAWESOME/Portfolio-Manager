@@ -5,7 +5,15 @@ import { useState } from "react";
 
 import styles from "./Card.module.css";
 
-export function Card(props: { onDelete: () => void; step: Step }) {
+export function Card(props: {
+  onDelete: () => void;
+  onNameChange: (value: string) => void;
+  onProbabilityChange: (value: number) => void;
+  onSkewChange: (value: number) => void;
+  onTimeMinChange: (value: number) => void;
+  onTimeMaxChange: (value: number) => void;
+  step: Step;
+}) {
   const [skew, setSkew] = useState(0);
 
   return (
@@ -18,6 +26,7 @@ export function Card(props: { onDelete: () => void; step: Step }) {
       <input
         className={styles["step-name"]}
         defaultValue={props.step.name}
+        onChange={(event) => props.onNameChange(event.target.value)}
         placeholder="Step"
         type="text"
       />
@@ -28,6 +37,9 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           defaultValue={props.step.probabilityOfSuccess}
           max={1}
           min={0}
+          onChange={(event) =>
+            props.onProbabilityChange(parseFloat(event.target.value))
+          }
           step={0.01}
           type="number"
         />{" "}
@@ -51,7 +63,7 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           <div className={styles.bound}>
             <input
               className={styles.number}
-              defaultValue={props.step.timeDistribution.lowerBound}
+              defaultValue={props.step.time.min}
               min={0}
               type="number"
             />
@@ -64,7 +76,7 @@ export function Card(props: { onDelete: () => void; step: Step }) {
           <div className={styles.bound}>
             <input
               className={styles.number}
-              defaultValue={props.step.timeDistribution.upperBound}
+              defaultValue={props.step.time.max}
               min={0}
               type="number"
             />
