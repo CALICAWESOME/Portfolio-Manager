@@ -1,9 +1,17 @@
 import { ReactComponent as DeleteButtonSVG } from "./cancel.svg";
 import { Step } from "../types";
 import { Graph } from "./graph/Graph";
-import { useState } from "react";
+import { erf } from "mathjs";
+import { range } from "d3";
 
 import styles from "./Card.module.css";
+import { useMemo } from "react";
+
+const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
+const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
+const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
+const SKEWED_PDF = (x: number, skew: number) =>
+  2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
 export function Card(props: {
   onDelete: () => void;
@@ -14,7 +22,29 @@ export function Card(props: {
   onTimeMaxChange: (value: number) => void;
   step: Step;
 }) {
-  const [skew, setSkew] = useState(0);
+  const graphData = useMemo(
+    () =>
+      range(0, 8, 0.01).reduce(
+        (accumulator, x) => {
+          const y = SKEWED_PDF(x - 4, props.step.time.skew);
+
+          // Push coordinates to data
+          accumulator.coordinates.push([x, y]);
+
+          // Find max y value for y-axis clamping
+          if (y > accumulator.yMax) {
+            accumulator.yMax = y;
+          }
+
+          return accumulator;
+        },
+        {
+          coordinates: [] as [number, number][],
+          yMax: 0,
+        }
+      ),
+    [props.step.time.skew]
+  );
 
   return (
     <div className={styles.card}>
@@ -48,16 +78,10 @@ export function Card(props: {
 
       <div className={styles["time-to-completion"]}>
         <Graph
-          skew={skew}
-          // data={[
-          //   [-1, 0.5],
-          //   [0, 0.75],
-          //   [1, 2.5],
-          // ]}
-          // xMax={2.75}
-          // xMin={-2.75}
-          // yMax={1}
-          // yMin={0}
+          data={graphData.coordinates}
+          xMax={7}
+          xMin={1}
+          yMax={graphData.yMax}
         />
         <div className={styles["min-max-container"]}>
           <div className={styles.bound}>
@@ -85,7 +109,9 @@ export function Card(props: {
         <input
           min={-10}
           max={10}
-          onChange={(event) => setSkew(parseFloat(event.target.value))}
+          onChange={(event) =>
+            props.onSkewChange(parseFloat(event.target.value))
+          }
           step={0.1}
           type="range"
         />

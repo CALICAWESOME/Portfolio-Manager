@@ -11,6 +11,10 @@ const defaultStep: Step = {
   },
 };
 
+/*
+ * Min and max will be 3 standard deviations from the mean in either direction
+ * (This means that mean and std. dev can be computed from min and max)
+ */
 const defaultSteps: { steps: Steps; stepsOrder: string[] } = {
   steps: {
     default1: {

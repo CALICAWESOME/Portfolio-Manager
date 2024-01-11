@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import styles from "./App.module.css";
 import { Card } from "./card/Card";
 import { AddCard } from "./card/addCard/AddCard";
 import { RootState } from "./store";
@@ -13,6 +12,8 @@ import {
   setStepSkew,
 } from "./stepsSlice";
 import { Output } from "./output";
+
+import styles from "./App.module.css";
 
 function App() {
   const dispatch = useDispatch();
