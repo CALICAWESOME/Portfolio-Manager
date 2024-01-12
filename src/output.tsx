@@ -8,7 +8,7 @@ export function Output(props: { steps: Steps; stepsOrder: string[] }) {
   );
 
   return (
-    <div>
+    <div style={{ marginLeft: 16 }}>
       Overall probability of success: {overallPos.toFixed(2)}
       <br />
       Time distribution:
