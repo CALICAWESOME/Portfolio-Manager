@@ -1,5 +1,13 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { Step, Steps } from "./types";
+import { range } from "d3";
+import { erf } from "mathjs";
+
+const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
+const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
+const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
+const SKEWED_PDF = (x: number, skew: number) =>
+  2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
 const defaultStep: Step = {
   name: "New Step",
@@ -11,11 +19,16 @@ const defaultStep: Step = {
   },
 };
 
+interface StepsState {
+  steps: Steps;
+  stepsOrder: string[];
+}
+
 /*
  * Min and max will be 3 standard deviations from the mean in either direction
  * (This means that mean and std. dev can be computed from min and max)
  */
-const defaultSteps: { steps: Steps; stepsOrder: string[] } = {
+const defaultSteps: StepsState = {
   steps: {
     default1: {
       name: "Assay Development",
@@ -92,6 +105,39 @@ const stepsReducer = createSlice({
       state.steps[action.payload.id].time.skew = action.payload.value;
     },
   },
+  selectors: {
+    selectGraphData: createSelector(
+      (state: StepsState) => state,
+      (state: StepsState, stepId: string) => state.steps[stepId].time,
+      (_, time: Step["time"]) => {
+        const mean = (time.max + time.min) / 2;
+        // Show six standard deviations
+        const scale = (time.max - time.min) / 6;
+        // Approximately 1000 steps
+        const step = scale / 166;
+
+        return range(time.min, time.max, step).reduce(
+          (accumulator, x) => {
+            const y = SKEWED_PDF((x - mean) / scale, time.skew);
+
+            // Push coordinates to data
+            accumulator.coordinates.push([x, y]);
+
+            // Find max y value for y-axis clamping
+            if (y > accumulator.yMax) {
+              accumulator.yMax = y;
+            }
+
+            return accumulator;
+          },
+          {
+            coordinates: [] as [number, number][],
+            yMax: 0,
+          }
+        );
+      }
+    ),
+  },
 });
 
 export const {
@@ -103,4 +149,5 @@ export const {
   setStepProbability,
   setStepSkew,
 } = stepsReducer.actions;
+export const { selectGraphData } = stepsReducer.selectors;
 export default stepsReducer.reducer;

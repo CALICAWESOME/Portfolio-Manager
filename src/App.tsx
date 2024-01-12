@@ -1,10 +1,11 @@
-import { useDispatch, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { Card } from "./card/Card";
 import { AddCard } from "./card/addCard/AddCard";
 import { RootState } from "./store";
 import {
   addStep,
   deleteStep,
+  selectGraphData,
   setStepMaxTime,
   setStepMinTime,
   setStepName,
@@ -12,42 +13,42 @@ import {
   setStepSkew,
 } from "./stepsSlice";
 import { Output } from "./output";
+import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import styles from "./App.module.css";
 
-function App() {
-  const dispatch = useDispatch();
-  const state = useSelector((state: RootState) => {
-    console.log(state.steps);
-    return state.steps;
-  });
-
-  return (
-    <div className={styles.container}>
-      {state.stepsOrder.map((stepId, index) => (
-        <Card
-          key={index + state.steps[stepId].name + ""}
-          onDelete={() => dispatch(deleteStep(stepId))}
-          onNameChange={(name) =>
-            dispatch(setStepName({ id: stepId, value: name }))
-          }
-          onProbabilityChange={(probability) =>
-            dispatch(setStepProbability({ id: stepId, value: probability }))
-          }
-          onSkewChange={(value) => dispatch(setStepSkew({ id: stepId, value }))}
-          onTimeMinChange={(value) =>
-            dispatch(setStepMinTime({ id: stepId, value }))
-          }
-          onTimeMaxChange={(value) =>
-            dispatch(setStepMaxTime({ id: stepId, value }))
-          }
-          step={state.steps[stepId]}
-        />
-      ))}
-      <AddCard onClick={() => dispatch(addStep())} />
-      <Output steps={state.steps} stepsOrder={state.stepsOrder} />
-    </div>
-  );
-}
-
-export default App;
+export default connect(
+  (state: RootState) => ({ state }),
+  (dispatch) => ({ dispatch })
+)((props: { state: RootState; dispatch: Dispatch<UnknownAction> }) => (
+  <div className={styles.container}>
+    {props.state.steps.stepsOrder.map((stepId, index) => (
+      <Card
+        graphData={selectGraphData(props.state, stepId)}
+        key={index + props.state.steps.steps[stepId].name + ""}
+        onDelete={() => props.dispatch(deleteStep(stepId))}
+        onNameChange={(name) =>
+          props.dispatch(setStepName({ id: stepId, value: name }))
+        }
+        onProbabilityChange={(probability) =>
+          props.dispatch(setStepProbability({ id: stepId, value: probability }))
+        }
+        onSkewChange={(value) =>
+          props.dispatch(setStepSkew({ id: stepId, value }))
+        }
+        onTimeMaxChange={(value) =>
+          props.dispatch(setStepMaxTime({ id: stepId, value }))
+        }
+        onTimeMinChange={(value) =>
+          props.dispatch(setStepMinTime({ id: stepId, value }))
+        }
+        step={props.state.steps.steps[stepId]}
+      />
+    ))}
+    <AddCard onClick={() => props.dispatch(addStep())} />
+    <Output
+      steps={props.state.steps.steps}
+      stepsOrder={props.state.steps.stepsOrder}
+    />
+  </div>
+));

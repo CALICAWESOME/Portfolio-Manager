@@ -9,6 +9,7 @@ export function Graph(props: {
   xMin: number;
   yMax: number;
 }) {
+  const areaRef = useRef<SVGPathElement>(null);
   const lineRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const xAxisRef = useRef<SVGGElement>(null);
@@ -17,6 +18,7 @@ export function Graph(props: {
   useEffect(() => {
     if (
       !(
+        areaRef.current &&
         lineRef.current &&
         svgRef.current &&
         xAxisRef.current &&
@@ -55,15 +57,28 @@ export function Graph(props: {
       .attr("transform", `translate(${marginSides},0)`)
       .call(d3.axisLeft(yScale).ticks(5));
 
-    const line = d3
-      .line()
-      .x(([x, _]) => xScale(x))
-      .y(([_, y]) => yScale(y))
-      .curve(d3.curveBasis)(props.data);
+    d3.select(areaRef.current)
+      .attr(
+        "d",
+        d3
+          .area()
+          .x(([x, _]) => xScale(x))
+          .y0(height - marginBottom)
+          .y1(([_, y]) => yScale(y))
+          .curve(d3.curveBasis)(props.data)
+      )
+      .attr("fill", "lightblue");
 
     d3.select(lineRef.current)
-      .attr("d", line)
-      .attr("fill", "lightblue")
+      .attr(
+        "d",
+        d3
+          .line()
+          .x(([x, _]) => xScale(x))
+          .y(([_, y]) => yScale(y))
+          .curve(d3.curveBasis)(props.data)
+      )
+      .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2);
 
@@ -72,6 +87,7 @@ export function Graph(props: {
 
   return (
     <svg className={styles.graph} ref={svgRef}>
+      <path ref={areaRef} />
       <path ref={lineRef} />
       <g ref={xAxisRef} />
       <g ref={yAxisRef} />
