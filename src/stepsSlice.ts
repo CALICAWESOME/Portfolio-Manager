@@ -1,15 +1,7 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { Step, Steps } from "./types";
-import { range } from "d3";
-import { erf, mean, std } from "mathjs";
+import { range as d3Range } from "d3";
 import { nanoid } from "nanoid";
-
-// Math stuff
-const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
-const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
-const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
-const SKEWED_PDF = (x: number, skew: number) =>
-  2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
 // Code borrowed from https://spin.atomicobject.com/skew-normal-prng-javascript/
 const RANDOM_NORMALS = () => {
@@ -34,9 +26,6 @@ const RANDOM_SKEW_NORMAL = (skew: number = 0) => {
   return u0 >= 0 ? u1 : -u1;
 };
 
-const samples = range(10000).map(() => RANDOM_SKEW_NORMAL() * 2 + 3);
-console.log(mean(samples), std(samples));
-
 interface StepsState {
   steps: Steps;
   stepsOrder: string[];
@@ -52,18 +41,18 @@ const defaultSteps: StepsState = {
       name: "Assay Development",
       probabilityOfSuccess: 0.75,
       time: {
-        min: 6,
-        max: 12,
+        mean: 9,
         skew: 0,
+        standardDeviation: 1,
       },
     },
     default2: {
       name: "Screening",
       probabilityOfSuccess: 0.95,
       time: {
-        min: 3,
-        max: 6,
+        mean: 4.5,
         skew: 0,
+        standardDeviation: 0.5,
       },
     },
   },
@@ -74,9 +63,9 @@ const defaultNewStep: Step = {
   name: "New Step",
   probabilityOfSuccess: 0.95,
   time: {
-    min: 3,
-    max: 6,
+    mean: 4.5,
     skew: 0,
+    standardDeviation: 0.5,
   },
 };
 
@@ -95,18 +84,6 @@ const stepsReducer = createSlice({
       delete state.steps[idToDelete];
       state.stepsOrder = state.stepsOrder.filter((id) => id !== idToDelete);
     },
-    setStepMinTime: (
-      state,
-      action: PayloadAction<{ id: string; value: number }>
-    ) => {
-      state.steps[action.payload.id].time.min = action.payload.value;
-    },
-    setStepMaxTime: (
-      state,
-      action: PayloadAction<{ id: string; value: number }>
-    ) => {
-      state.steps[action.payload.id].time.max = action.payload.value;
-    },
     setStepName: (
       state,
       action: PayloadAction<{ id: string; value: string }>
@@ -121,11 +98,24 @@ const stepsReducer = createSlice({
       state.steps[action.payload.id].probabilityOfSuccess =
         action.payload.value;
     },
-    setStepSkew: (
+    setStepTimeSkew: (
       state,
       action: PayloadAction<{ id: string; value: number }>
     ) => {
       state.steps[action.payload.id].time.skew = action.payload.value;
+    },
+    setStepTimeMean: (
+      state,
+      action: PayloadAction<{ id: string; value: number }>
+    ) => {
+      state.steps[action.payload.id].time.mean = action.payload.value;
+    },
+    setStepTimeStandardDeviation: (
+      state,
+      action: PayloadAction<{ id: string; value: number }>
+    ) => {
+      state.steps[action.payload.id].time.standardDeviation =
+        action.payload.value;
     },
   },
   selectors: {
@@ -133,15 +123,22 @@ const stepsReducer = createSlice({
       (state: StepsState) => state,
       (state: StepsState, stepId: string) => state.steps[stepId].time,
       (_, time: Step["time"]) => {
-        const mean = (time.max + time.min) / 2;
-        // Show six standard deviations
-        const scale = (time.max - time.min) / 6;
-        // Approximately 1000 steps
-        const step = scale / 166;
+        const numBins = 4; // bins per stdev
+        const binWidth = 1 / numBins;
+        const bins = Array();
 
-        return range(time.min, time.max, step).reduce(
+        const numSamples = 1000;
+        const increment = numBins / numSamples;
+
+        return d3Range(numSamples).reduce(
           (accumulator, x) => {
-            const y = SKEWED_PDF((x - mean) / scale, time.skew);
+            // const y = SKEWED_PDF((x - mean) / scale, time.skew);
+            // const y = SKEWED_PDF_2(x, mean, scale, time.skew);
+            // const y = SKEWED_PDF_3((x - mean) / scale, scale, time.skew);
+            const y = RANDOM_SKEW_NORMAL(time.skew);
+
+            const bin = Math.floor(y / binWidth);
+            bins[bin] = bins[bin] + increment || increment;
 
             // Push coordinates to data
             accumulator.coordinates.push([x, y]);
@@ -155,6 +152,8 @@ const stepsReducer = createSlice({
           },
           {
             coordinates: [] as [number, number][],
+            xMax: Number.POSITIVE_INFINITY,
+            xMin: Number.NEGATIVE_INFINITY,
             yMax: 0,
           }
         );
@@ -166,11 +165,11 @@ const stepsReducer = createSlice({
 export const {
   addStep,
   deleteStep,
-  setStepMinTime,
-  setStepMaxTime,
   setStepName,
   setStepProbability,
-  setStepSkew,
+  setStepTimeMean,
+  setStepTimeSkew,
+  setStepTimeStandardDeviation,
 } = stepsReducer.actions;
 export const { selectGraphData } = stepsReducer.selectors;
 export default stepsReducer.reducer;

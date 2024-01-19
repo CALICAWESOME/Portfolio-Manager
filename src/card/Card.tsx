@@ -3,9 +3,10 @@ import { Step } from "../types";
 import { Graph } from "./graph/Graph";
 
 import styles from "./Card.module.css";
+import { selectGraphData } from "../stepsSlice";
 
 export function Card(props: {
-  graphData: { coordinates: [number, number][]; yMax: number };
+  graphData: ReturnType<typeof selectGraphData>;
   onDelete: () => void;
   onNameChange: (value: string) => void;
   onProbabilityChange: (value: number) => void;
@@ -47,15 +48,15 @@ export function Card(props: {
       <div className={styles["time-to-completion"]}>
         <Graph
           data={props.graphData.coordinates}
-          xMax={props.step.time.max}
-          xMin={props.step.time.min}
+          xMax={props.graphData.xMax}
+          xMin={props.graphData.xMin}
           yMax={props.graphData.yMax}
         />
         <div className={styles["min-max-container"]}>
           <div className={styles.bound}>
             <input
               className={styles.number}
-              defaultValue={props.step.time.min}
+              defaultValue={props.step.time.mean}
               min={0}
               onChange={(event) =>
                 props.onTimeMinChange(parseInt(event.target.value))
@@ -71,7 +72,7 @@ export function Card(props: {
           <div className={styles.bound}>
             <input
               className={styles.number}
-              defaultValue={props.step.time.max}
+              defaultValue={props.step.time.standardDeviation}
               min={0}
               onChange={(event) =>
                 props.onTimeMaxChange(parseInt(event.target.value))

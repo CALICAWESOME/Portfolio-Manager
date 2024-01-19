@@ -6,13 +6,13 @@ import {
   addStep,
   deleteStep,
   selectGraphData,
-  setStepMaxTime,
-  setStepMinTime,
   setStepName,
   setStepProbability,
-  setStepSkew,
+  setStepTimeMean,
+  setStepTimeSkew,
+  setStepTimeStandardDeviation,
 } from "./stepsSlice";
-import { Output } from "./output";
+import { Output } from "./Output";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import styles from "./App.module.css";
@@ -37,13 +37,13 @@ export default connect(
             )
           }
           onSkewChange={(value) =>
-            props.dispatch(setStepSkew({ id: stepId, value }))
+            props.dispatch(setStepTimeSkew({ id: stepId, value }))
           }
           onTimeMaxChange={(value) =>
-            props.dispatch(setStepMaxTime({ id: stepId, value }))
+            props.dispatch(setStepTimeStandardDeviation({ id: stepId, value }))
           }
           onTimeMinChange={(value) =>
-            props.dispatch(setStepMinTime({ id: stepId, value }))
+            props.dispatch(setStepTimeMean({ id: stepId, value }))
           }
           step={props.state.steps.steps[stepId]}
         />

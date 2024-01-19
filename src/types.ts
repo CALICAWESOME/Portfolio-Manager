@@ -1,11 +1,11 @@
-export type Step = {
+export interface Step {
   name: string;
   probabilityOfSuccess: number;
   time: {
-    min: number;
-    max: number;
+    mean: number;
     skew: number;
+    standardDeviation: number;
   };
-};
+}
 
 export type Steps = { [id: string]: Step };
