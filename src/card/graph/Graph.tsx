@@ -57,6 +57,16 @@ export function Graph(props: {
       .attr("transform", `translate(${marginSides},0)`)
       .call(d3.axisLeft(yScale).ticks(5));
 
+    d3.select(svgRef.current)
+      .selectAll("rect")
+      .data(props.data)
+      .join("rect")
+      .attr("fill", "red")
+      .attr("height", ([_, y]) => height - marginBottom - yScale(y))
+      .attr("width", 5)
+      .attr("x", ([x]) => xScale(x))
+      .attr("y", ([_, y]) => yScale(y));
+
     d3.select(areaRef.current)
       .attr(
         "d",
@@ -64,23 +74,27 @@ export function Graph(props: {
           .area()
           .x(([x, _]) => xScale(x))
           .y0(height - marginBottom)
-          .y1(([_, y]) => yScale(y))
-          .curve(d3.curveBasis)(props.data)
+          .y1(([_, y]) => yScale(y))(
+          // .curve(d3.curveBasis)
+          props.data
+        )
       )
       .attr("fill", "lightblue");
 
-    d3.select(lineRef.current)
-      .attr(
-        "d",
-        d3
-          .line()
-          .x(([x, _]) => xScale(x))
-          .y(([_, y]) => yScale(y))
-          .curve(d3.curveBasis)(props.data)
-      )
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 2);
+    // d3.select(lineRef.current)
+    //   .attr(
+    //     "d",
+    //     d3
+    //       .line()
+    //       .x(([x, _]) => xScale(x))
+    //       .y(([_, y]) => yScale(y))(
+    //       // .curve(d3.curveBasis)
+    //       props.data
+    //     )
+    //   )
+    //   .attr("fill", "none")
+    //   .attr("stroke", "steelblue")
+    //   .attr("stroke-width", 2);
 
     console.timeEnd();
   }, [props.data, props.xMax, props.xMin, props.yMax]);

@@ -120,29 +120,37 @@ const stepsReducer = createSlice({
       (state: StepsState) => state,
       (state: StepsState, stepId: string) => state.steps[stepId].time,
       (_, time: Step["time"]) => {
-        const numBins = 4; // bins per stdev
-        const numSamples = 1000;
-        const increment = numBins / numSamples;
+        // Should be total bins
+        const numBins = 20; // bins per range
+        const numSamples = 10000;
 
-        const bins: { [bin: number]: number } = {};
-
+        const samples = [];
         let xMax = Number.NEGATIVE_INFINITY;
         let xMin = Number.POSITIVE_INFINITY;
         let yMax = 0;
 
         for (let i = 0; i < numSamples; i++) {
           const sample = RANDOM_SKEW_NORMAL(time.skew);
-          const bin = Math.floor(sample * 4) / 4;
-          bins[bin] = bins[bin] + increment || increment;
+          samples.push(sample);
 
-          if (bin < xMin) {
-            xMin = bin;
+          if (sample < xMin) {
+            xMin = sample;
           }
 
-          if (bin > xMax) {
-            xMax = bin;
+          if (sample > xMax) {
+            xMax = sample;
           }
         }
+
+        const range = xMax - xMin;
+        const binWidth = range / numBins;
+        const bins: { [bin: number]: number } = {};
+        const increment = numBins / numSamples;
+
+        samples.map((sample) => {
+          const bin = Math.floor(sample / binWidth) * binWidth;
+          bins[bin] = bins[bin] + increment || increment;
+        });
 
         // Remember that there won't be _that_ many bins and that time complexity
         // for this sort isn't a huge deal (O(log(n)) where n = number of bins)
