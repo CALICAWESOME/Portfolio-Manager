@@ -5,25 +5,26 @@ import { nanoid } from "nanoid";
 
 // Code borrowed from https://spin.atomicobject.com/skew-normal-prng-javascript/
 const RANDOM_NORMALS = () => {
-  let [u1, u2] = [0, 0];
+  let [random1, random2] = [0, 0];
   //Convert [0,1) to (0,1)
-  while (u1 === 0) u1 = Math.random();
-  while (u2 === 0) u2 = Math.random();
+  while (random1 === 0) random1 = Math.random();
+  while (random2 === 0) random2 = Math.random();
 
-  const magnitude = Math.sqrt(-2.0 * Math.log(u1));
-  const direction = 2.0 * Math.PI * u2;
+  const magnitude = Math.sqrt(-2.0 * Math.log(random1));
+  const direction = 2.0 * Math.PI * random2;
   return [magnitude * Math.cos(direction), magnitude * Math.sin(direction)];
 };
 
 const RANDOM_SKEW_NORMAL = (skew: number = 0) => {
-  const [u0, v] = RANDOM_NORMALS();
+  const [boxMuller1, boxMuller2] = RANDOM_NORMALS();
   if (skew === 0) {
-    return u0;
+    return boxMuller1;
   }
 
   const delta = skew / Math.sqrt(1 + Math.pow(skew, 2));
-  const u1 = delta * u0 + Math.sqrt(1 - Math.pow(delta, 2)) * v;
-  return u0 >= 0 ? u1 : -u1;
+  const skewedRandomNormal =
+    delta * boxMuller1 + Math.sqrt(1 - Math.pow(delta, 2)) * boxMuller2;
+  return boxMuller1 >= 0 ? skewedRandomNormal : -skewedRandomNormal;
 };
 
 interface StepsState {
@@ -31,10 +32,6 @@ interface StepsState {
   stepsOrder: string[];
 }
 
-/*
- * Min and max will be 3 standard deviations from the mean in either direction
- * (This means that mean and std. dev can be computed from min and max)
- */
 const defaultSteps: StepsState = {
   steps: {
     default1: {
@@ -124,39 +121,41 @@ const stepsReducer = createSlice({
       (state: StepsState, stepId: string) => state.steps[stepId].time,
       (_, time: Step["time"]) => {
         const numBins = 4; // bins per stdev
-        const binWidth = 1 / numBins;
-        const bins = Array();
-
         const numSamples = 1000;
         const increment = numBins / numSamples;
 
-        return d3Range(numSamples).reduce(
-          (accumulator, x) => {
-            // const y = SKEWED_PDF((x - mean) / scale, time.skew);
-            // const y = SKEWED_PDF_2(x, mean, scale, time.skew);
-            // const y = SKEWED_PDF_3((x - mean) / scale, scale, time.skew);
-            const y = RANDOM_SKEW_NORMAL(time.skew);
+        const bins: { [bin: number]: number } = {};
 
-            const bin = Math.floor(y / binWidth);
-            bins[bin] = bins[bin] + increment || increment;
+        let xMax = Number.NEGATIVE_INFINITY;
+        let xMin = Number.POSITIVE_INFINITY;
+        let yMax = 0;
 
-            // Push coordinates to data
-            accumulator.coordinates.push([x, y]);
+        for (let i = 0; i < numSamples; i++) {
+          const sample = RANDOM_SKEW_NORMAL(time.skew);
+          const bin = Math.floor(sample * 4) / 4;
+          bins[bin] = bins[bin] + increment || increment;
 
-            // Find max y value for y-axis clamping
-            if (y > accumulator.yMax) {
-              accumulator.yMax = y;
-            }
-
-            return accumulator;
-          },
-          {
-            coordinates: [] as [number, number][],
-            xMax: Number.POSITIVE_INFINITY,
-            xMin: Number.NEGATIVE_INFINITY,
-            yMax: 0,
+          if (bin < xMin) {
+            xMin = bin;
           }
-        );
+
+          if (bin > xMax) {
+            xMax = bin;
+          }
+        }
+
+        // Remember that there won't be _that_ many bins and that time complexity
+        // for this sort isn't a huge deal (O(log(n)) where n = number of bins)
+        const coordinates: [number, number][] = Object.entries(bins)
+          .sort(([x1], [x2]) => +x1 - +x2)
+          .map(([x, y]) => {
+            if (y > yMax) yMax = y;
+            return [+x, y];
+          });
+
+        console.log(coordinates);
+
+        return { coordinates, xMax, xMin, yMax };
       }
     ),
   },
