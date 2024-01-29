@@ -1,7 +1,7 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { Step, Steps } from "./types";
-import { range as d3Range } from "d3";
 import { nanoid } from "nanoid";
+import { range } from "lodash";
 
 // Code borrowed from https://spin.atomicobject.com/skew-normal-prng-javascript/
 const RANDOM_NORMALS = () => {
@@ -120,40 +120,39 @@ const stepsReducer = createSlice({
       (state: StepsState) => state,
       (state: StepsState, stepId: string) => state.steps[stepId].time,
       (_, time: Step["time"]) => {
-        // Should be total bins
-        const numBins = 20; // bins per range
+        const numBins = 30;
         const numSamples = 10000;
-
-        const samples = [];
-        let xMax = Number.NEGATIVE_INFINITY;
-        let xMin = Number.POSITIVE_INFINITY;
-        let yMax = 0;
-
-        for (let i = 0; i < numSamples; i++) {
-          const sample = RANDOM_SKEW_NORMAL(time.skew);
-          samples.push(sample);
-
-          if (sample < xMin) {
-            xMin = sample;
-          }
-
-          if (sample > xMax) {
-            xMax = sample;
-          }
-        }
-
-        const range = xMax - xMin;
-        const binWidth = range / numBins;
-        const bins: { [bin: number]: number } = {};
         const increment = numBins / numSamples;
 
-        samples.map((sample) => {
+        // Generate samples
+        const sampleData = range(numSamples).reduce(
+          ({ samples, xMax, xMin }) => {
+            const sample = RANDOM_SKEW_NORMAL(time.skew);
+            samples.push(sample);
+
+            if (sample < xMin) xMin = sample;
+            if (sample > xMax) xMax = sample;
+
+            return { samples, xMax, xMin };
+          },
+          {
+            samples: [] as number[],
+            xMax: Number.NEGATIVE_INFINITY,
+            xMin: Number.POSITIVE_INFINITY,
+          }
+        );
+
+        // Bin samples
+        const binWidth = (sampleData.xMax - sampleData.xMin) / numBins;
+        const bins = sampleData.samples.reduce((bins, sample) => {
           const bin = Math.floor(sample / binWidth) * binWidth;
           bins[bin] = bins[bin] + increment || increment;
-        });
 
-        // Remember that there won't be _that_ many bins and that time complexity
-        // for this sort isn't a huge deal (O(log(n)) where n = number of bins)
+          return bins;
+        }, {} as { [bin: number]: number });
+
+        // Turn bins into coordinates
+        let yMax = 0;
         const coordinates: [number, number][] = Object.entries(bins)
           .sort(([x1], [x2]) => +x1 - +x2)
           .map(([x, y]) => {
@@ -161,9 +160,14 @@ const stepsReducer = createSlice({
             return [+x, y];
           });
 
-        console.log(coordinates);
-
-        return { coordinates, xMax, xMin, yMax };
+        return {
+          binWidth,
+          coordinates,
+          unBinnedSamples: sampleData.samples,
+          xMax: sampleData.xMax,
+          xMin: sampleData.xMin,
+          yMax,
+        };
       }
     ),
   },

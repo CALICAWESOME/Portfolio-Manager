@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import styles from "./Graph.module.css";
 
 export function Graph(props: {
+  binWidth: number;
   data: [number, number][];
   xMax: number;
   xMin: number;
@@ -63,7 +64,7 @@ export function Graph(props: {
       .join("rect")
       .attr("fill", "red")
       .attr("height", ([_, y]) => height - marginBottom - yScale(y))
-      .attr("width", 5)
+      .attr("width", 6)
       .attr("x", ([x]) => xScale(x))
       .attr("y", ([_, y]) => yScale(y));
 
