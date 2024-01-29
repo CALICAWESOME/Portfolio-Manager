@@ -48,6 +48,7 @@ export function Card(props: {
         <Graph
           binWidth={props.graphData.binWidth}
           data={props.graphData.coordinates}
+          histogramData={props.graphData.histogramCoordinates}
           xMax={props.graphData.xMax}
           xMin={props.graphData.xMin}
           yMax={props.graphData.yMax}

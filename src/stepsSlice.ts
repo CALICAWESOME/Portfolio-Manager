@@ -1,6 +1,12 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
+import { erf } from "mathjs";
 import { nanoid } from "nanoid";
-import { range } from "lodash";
+
+const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
+const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
+const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
+const SKEWED_PDF = (x: number, skew: number) =>
+  2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
 // Code borrowed from https://spin.atomicobject.com/skew-normal-prng-javascript/
 const RANDOM_NORMALS = () => {
@@ -38,11 +44,13 @@ export interface Step {
 }
 
 interface StepsState {
+  numSamples: number;
   steps: Record<string, Step>;
   stepsOrder: string[];
 }
 
 const defaultSteps: StepsState = {
+  numSamples: 1000,
   steps: {
     default1: {
       name: "Assay Development",
@@ -161,13 +169,12 @@ const stepsReducer = createSlice({
     selectGraphData: createSelector(
       (state: StepsState) => state,
       (state: StepsState, stepId: string) => state.steps[stepId].time,
-      (_, time: Step["time"]) => {
+      (state, time: Step["time"]) => {
         const numBins = 30;
-        const numSamples = 10000;
-        const increment = numBins / numSamples;
 
         // Bin samples
         const binWidth = (time.samples.max - time.samples.min) / numBins;
+        const increment = 1 / (state.numSamples * binWidth);
         const bins = time.samples.samples.reduce((bins, sample) => {
           const bin = Math.floor(sample / binWidth) * binWidth;
           bins[bin] = bins[bin] + increment || increment;
@@ -175,21 +182,33 @@ const stepsReducer = createSlice({
           return bins;
         }, {} as { [bin: number]: number });
 
+        console.log(bins);
+
         // Turn bins into coordinates
         let yMax = 0;
-        const coordinates: [number, number][] = Object.entries(bins)
+        const histogramCoordinates: [number, number][] = Object.entries(bins)
           .sort(([x1], [x2]) => +x1 - +x2)
           .map(([x, y]) => {
             if (y > yMax) yMax = y;
             return [+x, y];
           });
 
+        let coordinates: [number, number][] = [];
+        for (let x = -3; x < 3; x += 0.006) {
+          const y = SKEWED_PDF(x, time.skew);
+
+          if (y > yMax) yMax = y;
+
+          coordinates.push([x, y]);
+        }
+
         return {
           binWidth,
           coordinates,
+          histogramCoordinates,
           unBinnedSamples: time.samples.samples,
-          xMax: time.samples.max,
-          xMin: time.samples.min,
+          xMax: 3,
+          xMin: -3,
           yMax,
         };
       }
