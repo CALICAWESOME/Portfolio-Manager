@@ -1,5 +1,4 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
-import { Step, Steps } from "./types";
 import { nanoid } from "nanoid";
 import { range } from "lodash";
 
@@ -27,8 +26,19 @@ const RANDOM_SKEW_NORMAL = (skew: number = 0) => {
   return boxMuller1 >= 0 ? skewedRandomNormal : -skewedRandomNormal;
 };
 
+export interface Step {
+  name: string;
+  probabilityOfSuccess: number;
+  time: {
+    mean: number;
+    samples: { max: number; min: number; samples: number[] };
+    skew: number;
+    standardDeviation: number;
+  };
+}
+
 interface StepsState {
-  steps: Steps;
+  steps: Record<string, Step>;
   stepsOrder: string[];
 }
 
@@ -39,6 +49,11 @@ const defaultSteps: StepsState = {
       probabilityOfSuccess: 0.75,
       time: {
         mean: 9,
+        samples: {
+          max: Number.NEGATIVE_INFINITY,
+          min: Number.POSITIVE_INFINITY,
+          samples: [],
+        },
         skew: 0,
         standardDeviation: 1,
       },
@@ -48,6 +63,11 @@ const defaultSteps: StepsState = {
       probabilityOfSuccess: 0.95,
       time: {
         mean: 4.5,
+        samples: {
+          max: Number.NEGATIVE_INFINITY,
+          min: Number.POSITIVE_INFINITY,
+          samples: [],
+        },
         skew: 0,
         standardDeviation: 0.5,
       },
@@ -61,6 +81,11 @@ const defaultNewStep: Step = {
   probabilityOfSuccess: 0.95,
   time: {
     mean: 4.5,
+    samples: {
+      max: Number.NEGATIVE_INFINITY,
+      min: Number.POSITIVE_INFINITY,
+      samples: [],
+    },
     skew: 0,
     standardDeviation: 0.5,
   },
@@ -80,6 +105,23 @@ const stepsReducer = createSlice({
 
       delete state.steps[idToDelete];
       state.stepsOrder = state.stepsOrder.filter((id) => id !== idToDelete);
+    },
+    generateSamples: (state) => {
+      state.stepsOrder.map((stepId) => {
+        let max = Number.NEGATIVE_INFINITY;
+        let min = Number.POSITIVE_INFINITY;
+        const samples = [];
+
+        for (let i = 0; i < 1000; i++) {
+          const sample = RANDOM_SKEW_NORMAL(state.steps[stepId].time.skew);
+          samples.push(sample);
+
+          if (sample < min) min = sample;
+          if (sample > max) max = sample;
+        }
+
+        state.steps[stepId].time.samples = { max, min, samples };
+      });
     },
     setStepName: (
       state,
@@ -124,27 +166,9 @@ const stepsReducer = createSlice({
         const numSamples = 10000;
         const increment = numBins / numSamples;
 
-        // Generate samples
-        const sampleData = range(numSamples).reduce(
-          ({ samples, xMax, xMin }) => {
-            const sample = RANDOM_SKEW_NORMAL(time.skew);
-            samples.push(sample);
-
-            if (sample < xMin) xMin = sample;
-            if (sample > xMax) xMax = sample;
-
-            return { samples, xMax, xMin };
-          },
-          {
-            samples: [] as number[],
-            xMax: Number.NEGATIVE_INFINITY,
-            xMin: Number.POSITIVE_INFINITY,
-          }
-        );
-
         // Bin samples
-        const binWidth = (sampleData.xMax - sampleData.xMin) / numBins;
-        const bins = sampleData.samples.reduce((bins, sample) => {
+        const binWidth = (time.samples.max - time.samples.min) / numBins;
+        const bins = time.samples.samples.reduce((bins, sample) => {
           const bin = Math.floor(sample / binWidth) * binWidth;
           bins[bin] = bins[bin] + increment || increment;
 
@@ -163,9 +187,9 @@ const stepsReducer = createSlice({
         return {
           binWidth,
           coordinates,
-          unBinnedSamples: sampleData.samples,
-          xMax: sampleData.xMax,
-          xMin: sampleData.xMin,
+          unBinnedSamples: time.samples.samples,
+          xMax: time.samples.max,
+          xMin: time.samples.min,
           yMax,
         };
       }
@@ -176,6 +200,7 @@ const stepsReducer = createSlice({
 export const {
   addStep,
   deleteStep,
+  generateSamples,
   setStepName,
   setStepProbability,
   setStepTimeMean,

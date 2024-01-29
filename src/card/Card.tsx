@@ -1,9 +1,8 @@
 import { ReactComponent as DeleteButtonSVG } from "./cancel.svg";
-import { Step } from "../types";
 import { Graph } from "./graph/Graph";
 
 import styles from "./Card.module.css";
-import { selectGraphData } from "../stepsSlice";
+import { Step, selectGraphData } from "../stepsSlice";
 
 export function Card(props: {
   graphData: ReturnType<typeof selectGraphData>;
