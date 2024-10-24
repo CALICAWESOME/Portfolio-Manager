@@ -3,6 +3,7 @@ import { Graph } from "./graph/Graph";
 
 import styles from "./Card.module.css";
 import { Step, selectGraphData } from "../stepsSlice";
+import { useDraggable } from "@dnd-kit/core";
 
 export function Card(props: {
   graphData: ReturnType<typeof selectGraphData>;
@@ -12,10 +13,27 @@ export function Card(props: {
   onSkewChange: (value: number) => void;
   onTimeMinChange: (value: number) => void;
   onTimeMaxChange: (value: number) => void;
+  stepId: string;
   step: Step;
 }) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: props.stepId,
+  });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
+
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+    >
       <DeleteButtonSVG
         className={styles["x-button"]}
         onClick={props.onDelete}
