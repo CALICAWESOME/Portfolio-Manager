@@ -1,7 +1,7 @@
 .card {
   background-color: lightgray;
   border-radius: 16px;
-  padding: 12px;
+  padding: 4px 12px 12px;
   position: relative;
   width: 216px;
   min-width: 216px;
@@ -29,14 +29,16 @@
   cursor: pointer;
   height: 32px;
   position: absolute;
-  left: -8px;
-  top: -8px;
+  left: -16px;
+  top: -16px;
   visibility: hidden;
   width: 32px;
 }
 
 .step-name {
+  box-sizing: border-box;
   margin-bottom: 4px;
+  width: 100%;
 }
 
 .probability-of-success {
