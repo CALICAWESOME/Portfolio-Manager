@@ -47,11 +47,7 @@ export function Card(props: {
         type="text"
       />
 
-      <div
-        className={styles["probability-of-success"]}
-        {...listeners}
-        {...attributes}
-      >
+      <div className={styles["probability-of-success"]}>
         <input
           className={styles["probability-input"]}
           defaultValue={props.step.probabilityOfSuccess}
@@ -63,7 +59,7 @@ export function Card(props: {
           step={0.01}
           type="number"
         />{" "}
-        probability of success
+        Probability of Success
       </div>
 
       <div className={styles["time-to-completion"]}>
@@ -75,35 +71,7 @@ export function Card(props: {
           xMin={props.graphData.xMin}
           yMax={props.graphData.yMax}
         />
-        <div className={styles["min-max-container"]}>
-          <div className={styles.bound}>
-            <input
-              className={styles.number}
-              defaultValue={props.step.time.mean}
-              min={0}
-              onChange={(event) =>
-                props.onTimeMinChange(parseInt(event.target.value))
-              }
-              type="number"
-            />
-          </div>
-          <select defaultValue={"days"}>
-            <option>days</option>
-            <option>weeks</option>
-            <option>months</option>
-          </select>
-          <div className={styles.bound}>
-            <input
-              className={styles.number}
-              defaultValue={props.step.time.standardDeviation}
-              min={0}
-              onChange={(event) =>
-                props.onTimeMaxChange(parseInt(event.target.value))
-              }
-              type="number"
-            />
-          </div>
-        </div>
+        Skew
         <input
           defaultValue={props.step.time.skew}
           min={-5}
@@ -114,6 +82,30 @@ export function Card(props: {
           step={0.01}
           type="range"
         />
+        <div className={styles["mean-stdev-picker"]}>
+          <input
+            className={styles.input}
+            defaultValue={props.step.time.mean}
+            min={0}
+            onChange={(event) =>
+              props.onTimeMinChange(parseInt(event.target.value))
+            }
+            type="number"
+          />
+          Mean
+        </div>
+        <div className={styles["mean-stdev-picker"]}>
+          <input
+            className={styles.input}
+            defaultValue={props.step.time.standardDeviation}
+            min={0}
+            onChange={(event) =>
+              props.onTimeMaxChange(parseInt(event.target.value))
+            }
+            type="number"
+          />
+          Standard Deviation
+        </div>
       </div>
     </div>
   );
