@@ -144,6 +144,8 @@ const stepsReducer = createSlice({
           if (currentElement !== action.payload.dragging) {
             // Add it to the result array
             finishedArray.push(currentElement);
+            // (in order to exclude the one we're dragging form its
+            //  original position in the list)
           }
 
           // If this is the step we're moving the dragged element to

@@ -42,7 +42,7 @@ export function Card(props: {
       <input
         className={styles["step-name"]}
         defaultValue={props.step.name}
-        onChange={(event) => props.onNameChange(event.target.value)}
+        onBlur={(event) => props.onNameChange(event.target.value)}
         placeholder="Step"
         type="text"
       />
