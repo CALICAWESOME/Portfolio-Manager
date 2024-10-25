@@ -3,7 +3,8 @@
   border-radius: 16px;
   padding: 12px;
   position: relative;
-  width: 260px;
+  width: 216px;
+  min-width: 216px;
 
   &:hover > .x-button {
     visibility: visible;

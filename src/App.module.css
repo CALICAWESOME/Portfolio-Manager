@@ -7,10 +7,33 @@ body {
 }
 
 .container {
+  box-sizing: border-box;
   background-color: white;
   display: flex;
-  gap: 16px;
   overflow: auto;
   padding: 16px;
   width: 100%;
+}
+
+.gap-container {
+  align-self: stretch;
+
+  min-width: 16px;
+
+  &:hover > .gap {
+    display: block;
+  }
+}
+
+.gap {
+  box-sizing: border-box;
+  display: none;
+
+  cursor: pointer;
+  width: 100px;
+  height: 100%;
+  margin: 0 4px;
+
+  border: 2px lightgray dashed;
+  border-radius: 16px;
 }

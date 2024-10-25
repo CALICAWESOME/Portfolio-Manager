@@ -71,7 +71,7 @@ export function Card(props: {
           xMin={props.graphData.xMin}
           yMax={props.graphData.yMax}
         />
-        Skew
+        Skew: {props.step.time.skew}
         <input
           defaultValue={props.step.time.skew}
           min={-5}

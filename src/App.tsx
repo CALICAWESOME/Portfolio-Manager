@@ -19,20 +19,19 @@ import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import styles from "./App.module.css";
 import { DndContext, DragEndEvent, useDroppable } from "@dnd-kit/core";
 import { useCallback } from "react";
-import { dispatch } from "d3";
 
 function Gap(props: { stepId: string }) {
   const { isOver, setNodeRef } = useDroppable({ id: props.stepId });
 
   const style = {
-    backgroundColor: isOver ? "green" : "blue",
-    width: isOver ? 24 : 1,
-    height: "100",
-    transitionDuration: "100ms",
-    transitionProperty: "width",
+    backgroundColor: isOver ? "green" : "none",
   };
 
-  return <div ref={setNodeRef} style={style}></div>;
+  return (
+    <div className={styles["gap-container"]} ref={setNodeRef}>
+      <div className={styles.gap} />
+    </div>
+  );
 }
 
 export default connect(
