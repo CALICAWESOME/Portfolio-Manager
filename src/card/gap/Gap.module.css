@@ -7,24 +7,30 @@
     min-width: fit-content;
 
     & > .gap {
-      display: flex;
+      visibility: visible;
+      width: 100px;
     }
   }
 }
 
 .gap {
-  display: none;
+  box-sizing: border-box;
+  visibility: hidden;
 
+  display: flex;
   justify-content: center;
   align-items: center;
 
   cursor: pointer;
-  width: 100px;
+  width: 0;
   height: 100%;
   margin: 0 4px;
 
   border: 2px lightgray dashed;
   border-radius: 16px;
+
+  transition-duration: 50ms;
+  transition-property: "width";
 
   .svg {
     height: 64px;
