@@ -134,6 +134,31 @@ const stepsReducer = createSlice({
       state.steps[action.payload.id].time.standardDeviation =
         action.payload.value;
     },
+    moveStep: (
+      state,
+      action: PayloadAction<{ moveTo: string; dragging: string }>
+    ) => {
+      const newOrder = state.stepsOrder.reduce(
+        (finishedArray, currentElement) => {
+          // If this element is not the one we're dragging
+          if (currentElement !== action.payload.dragging) {
+            // Add it to the result array
+            finishedArray.push(currentElement);
+          }
+
+          // If this is the step we're moving the dragged element to
+          if (currentElement === action.payload.moveTo) {
+            // Append the dragged element after the current element
+            finishedArray.push(action.payload.dragging);
+          }
+
+          return finishedArray;
+        },
+        [] as string[]
+      );
+
+      state.stepsOrder = newOrder;
+    },
   },
   selectors: {
     selectGraphData: createSelector(
@@ -195,6 +220,7 @@ export const {
   setStepTimeMean,
   setStepTimeSkew,
   setStepTimeStandardDeviation,
+  moveStep,
 } = stepsReducer.actions;
 export const { selectGraphData } = stepsReducer.selectors;
 export default stepsReducer.reducer;
