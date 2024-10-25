@@ -50,8 +50,36 @@ const defaultSteps: StepsState = {
         standardDeviation: 0.5,
       },
     },
+    default3: {
+      name: "New Step!",
+      probabilityOfSuccess: 0.75,
+      time: {
+        mean: 9,
+        samples: {
+          max: Number.NEGATIVE_INFINITY,
+          min: Number.POSITIVE_INFINITY,
+          samples: [],
+        },
+        skew: 0,
+        standardDeviation: 1,
+      },
+    },
+    default4: {
+      name: "Another new step",
+      probabilityOfSuccess: 0.95,
+      time: {
+        mean: 4.5,
+        samples: {
+          max: Number.NEGATIVE_INFINITY,
+          min: Number.POSITIVE_INFINITY,
+          samples: [],
+        },
+        skew: 0,
+        standardDeviation: 0.5,
+      },
+    },
   },
-  stepsOrder: ["default1", "default2"],
+  stepsOrder: ["default1", "default2", "default3", "default4"],
 };
 
 const defaultNewStep: Step = {
