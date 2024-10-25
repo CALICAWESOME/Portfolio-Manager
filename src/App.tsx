@@ -1,6 +1,5 @@
 import { connect } from "react-redux";
 import { Card } from "./card/Card";
-import { AddCard } from "./card/addCard/AddCard";
 import { RootState } from "./store";
 import {
   addStep,
@@ -17,22 +16,9 @@ import { Output } from "./Output";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import styles from "./App.module.css";
-import { DndContext, DragEndEvent, useDroppable } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useCallback } from "react";
-
-function Gap(props: { stepId: string }) {
-  const { isOver, setNodeRef } = useDroppable({ id: props.stepId });
-
-  const style = {
-    backgroundColor: isOver ? "green" : "none",
-  };
-
-  return (
-    <div className={styles["gap-container"]} ref={setNodeRef}>
-      <div className={styles.gap} />
-    </div>
-  );
-}
+import { Gap } from "./card/gap/Gap";
 
 export default connect(
   (state: RootState) => ({ state }),
@@ -94,10 +80,12 @@ export default connect(
                   stepId={stepId}
                   step={props.state.steps.steps[stepId]}
                 />
-                <Gap stepId={stepId} />
+                <Gap
+                  stepId={stepId}
+                  onClick={() => dispatch(addStep(stepId))}
+                />
               </>
             ))}
-            <AddCard onClick={() => dispatch(addStep())} />
           </div>
           <Output
             steps={props.state.steps.steps}

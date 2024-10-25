@@ -101,10 +101,13 @@ const stepsReducer = createSlice({
   initialState: defaultSteps,
   name: "steps",
   reducers: {
-    addStep: (state) => {
+    addStep: (state, action: PayloadAction<string>) => {
       const newId = nanoid(10);
+
       state.steps[newId] = defaultNewStep;
-      state.stepsOrder = [...state.stepsOrder, newId];
+
+      const index = state.stepsOrder.indexOf(action.payload);
+      state.stepsOrder.splice(index + 1, 0, newId);
     },
     deleteStep: (state, action: PayloadAction<string>) => {
       const idToDelete = action.payload;

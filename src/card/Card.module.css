@@ -29,7 +29,7 @@
   cursor: pointer;
   height: 32px;
   position: absolute;
-  right: -8px;
+  left: -8px;
   top: -8px;
   visibility: hidden;
   width: 32px;

@@ -1,0 +1,34 @@
+.gap-container {
+  align-self: stretch;
+
+  min-width: 16px;
+
+  &:hover {
+    min-width: fit-content;
+
+    & > .gap {
+      display: flex;
+    }
+  }
+}
+
+.gap {
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+  width: 100px;
+  height: 100%;
+  margin: 0 4px;
+
+  border: 2px lightgray dashed;
+  border-radius: 16px;
+
+  .svg {
+    height: 64px;
+    color: lightgray;
+    width: 64px;
+  }
+}
