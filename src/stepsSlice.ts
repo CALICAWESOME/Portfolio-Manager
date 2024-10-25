@@ -82,21 +82,6 @@ const defaultSteps: StepsState = {
   stepsOrder: ["default1", "default2", "default3", "default4"],
 };
 
-const defaultNewStep: Step = {
-  name: "New Step",
-  probabilityOfSuccess: 0.95,
-  time: {
-    mean: 4.5,
-    samples: {
-      max: Number.NEGATIVE_INFINITY,
-      min: Number.POSITIVE_INFINITY,
-      samples: [],
-    },
-    skew: 0,
-    standardDeviation: 0.5,
-  },
-};
-
 const stepsReducer = createSlice({
   initialState: defaultSteps,
   name: "steps",
@@ -104,7 +89,20 @@ const stepsReducer = createSlice({
     addStep: (state, action: PayloadAction<string>) => {
       const newId = nanoid(10);
 
-      state.steps[newId] = defaultNewStep;
+      state.steps[newId] = {
+        name: "New Step",
+        probabilityOfSuccess: 0.95,
+        time: {
+          mean: 4.5,
+          samples: {
+            max: Number.NEGATIVE_INFINITY,
+            min: Number.POSITIVE_INFINITY,
+            samples: [],
+          },
+          skew: 0,
+          standardDeviation: 0.5,
+        },
+      };
 
       const index = state.stepsOrder.indexOf(action.payload);
       state.stepsOrder.splice(index + 1, 0, newId);
