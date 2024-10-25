@@ -19,6 +19,7 @@ import styles from "./App.module.css";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useCallback } from "react";
 import { Gap } from "./card/gap/Gap";
+import { useStepStore } from "./zustand";
 
 export default connect(
   (state: RootState) => ({ state }),
@@ -31,6 +32,9 @@ export default connect(
     state: RootState;
     dispatch: Dispatch<UnknownAction>;
   }) => {
+    const stepsOrder = useStepStore((state) => state.stepsOrder);
+    const addStep = useStepStore((state) => state.addStep);
+
     const onDragEnd = useCallback(
       (event: DragEndEvent) => {
         console.log(event);
@@ -52,7 +56,7 @@ export default connect(
       <DndContext onDragEnd={onDragEnd}>
         <div id="everything">
           <div className={styles.container}>
-            {props.state.steps.stepsOrder.map((stepId, index) => (
+            {stepsOrder.map((stepId, index) => (
               <>
                 <Card
                   graphData={selectGraphData(props.state, stepId)}
@@ -80,10 +84,7 @@ export default connect(
                   stepId={stepId}
                   step={props.state.steps.steps[stepId]}
                 />
-                <Gap
-                  stepId={stepId}
-                  onClick={() => dispatch(addStep(stepId))}
-                />
+                <Gap stepId={stepId} onClick={() => addStep(stepId)} />
               </>
             ))}
           </div>
