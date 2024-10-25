@@ -10,6 +10,20 @@
   }
 }
 
+.grabber {
+  width: 100%;
+  margin-bottom: 4px;
+
+  display: flex;
+  justify-content: center;
+
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .x-button {
   cursor: pointer;
   height: 32px;

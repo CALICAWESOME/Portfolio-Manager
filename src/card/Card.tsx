@@ -1,4 +1,6 @@
 import { ReactComponent as DeleteButtonSVG } from "./cancel.svg";
+import { ReactComponent as GrabberSVG } from "./grabber.svg";
+
 import { Graph } from "./graph/Graph";
 
 import styles from "./Card.module.css";
@@ -27,17 +29,15 @@ export function Card(props: {
     : undefined;
 
   return (
-    <div
-      className={styles.card}
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-    >
+    <div className={styles.card} ref={setNodeRef} style={style}>
       <DeleteButtonSVG
         className={styles["x-button"]}
         onClick={props.onDelete}
       />
+
+      <div className={styles.grabber} {...listeners} {...attributes}>
+        <GrabberSVG />
+      </div>
 
       <input
         className={styles["step-name"]}
@@ -47,7 +47,11 @@ export function Card(props: {
         type="text"
       />
 
-      <div className={styles["probability-of-success"]}>
+      <div
+        className={styles["probability-of-success"]}
+        {...listeners}
+        {...attributes}
+      >
         <input
           className={styles["probability-input"]}
           defaultValue={props.step.probabilityOfSuccess}
