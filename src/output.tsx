@@ -1,15 +1,9 @@
-import { useDispatch } from "react-redux";
-import { Step, generateSamples } from "./stepsSlice";
+import { Steps } from "./mobx";
+import { observer } from "mobx-react-lite";
 
-export function Output(props: {
-  steps: Record<string, Step>;
-  stepsOrder: string[];
-}) {
-  const dispatch = useDispatch();
-
-  const overallPos = props.stepsOrder.reduce(
-    (result, stepId) =>
-      result * (props.steps[stepId].probabilityOfSuccess || 1),
+export const Output = observer((props: { steps: Steps }) => {
+  const overallPos = props.steps.stepsOrder.reduce(
+    (result, stepId) => result * props.steps.steps[stepId].probabilityOfSuccess,
     1
   );
 
@@ -18,7 +12,7 @@ export function Output(props: {
       Overall probability of success: {overallPos.toFixed(2)}
       <br />
       Time distribution:
-      <button onClick={() => dispatch(generateSamples())}>Simulate!</button>
+      {/* <button onClick={() => dispatch(generateSamples())}>Simulate!</button> */}
     </div>
   );
-}
+});

@@ -19,7 +19,7 @@ interface State {
   stepsOrder: string[];
   addStep: (stepId: string) => void;
   deleteStep: (stepId: string) => void;
-  updateStep: (stepId: string, newStep: Partial<Step>) => void;
+  setStepName: (stepId: string, name: string) => void;
   moveStep: (moveTo: string, dragging: string) => void;
 }
 
@@ -44,7 +44,7 @@ const defaultStepFactory = (
   },
 });
 
-export const useStepStore = create<State>()((set) => ({
+export const useStore = create<State>()((set) => ({
   numSamples: 1000,
   steps: {
     default1: defaultStepFactory("Assay Development", 0.75, 9, 0, 1),
@@ -76,15 +76,29 @@ export const useStepStore = create<State>()((set) => ({
       })
     ),
 
-  updateStep: (stepId: string, newStep: Partial<Step>) =>
+  setStepName: (stepId: string, name: string) =>
+    set(produce((state: State) => (state.steps[stepId].name = name))),
+
+  setStepProbability: (stepId: string, probability: number) =>
     set(
-      produce((state: State) => {
-        const oldStep = state.steps[stepId];
-        state.steps[stepId] = {
-          ...oldStep,
-          ...newStep,
-        };
-      })
+      produce(
+        (state: State) =>
+          (state.steps[stepId].probabilityOfSuccess = probability)
+      )
+    ),
+
+  setStepTimeSkew: (stepId: string, skew: number) =>
+    set(produce((state: State) => (state.steps[stepId].time.skew = skew))),
+
+  setStepTimeMean: (stepId: string, mean: number) =>
+    set(produce((state: State) => (state.steps[stepId].time.mean = mean))),
+
+  setStepTimeStandardDeviation: (stepId: string, standardDeviation: number) =>
+    set(
+      produce(
+        (state: State) =>
+          (state.steps[stepId].time.standardDeviation = standardDeviation)
+      )
     ),
 
   moveStep: (moveTo: string, dragging: string) =>

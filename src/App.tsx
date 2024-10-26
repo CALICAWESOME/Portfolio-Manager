@@ -1,99 +1,42 @@
-import { connect } from "react-redux";
 import { Card } from "./card/Card";
-import { RootState } from "./store";
-import {
-  addStep,
-  deleteStep,
-  moveStep,
-  selectGraphData,
-  setStepName,
-  setStepProbability,
-  setStepTimeMean,
-  setStepTimeSkew,
-  setStepTimeStandardDeviation,
-} from "./stepsSlice";
 import { Output } from "./Output";
-import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import styles from "./App.module.css";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useCallback } from "react";
 import { Gap } from "./card/gap/Gap";
-import { useStepStore } from "./zustand";
+import { Steps } from "./mobx";
+import { observer } from "mobx-react-lite";
 
-export default connect(
-  (state: RootState) => ({ state }),
-  (dispatch) => ({ dispatch })
-)(
-  ({
-    dispatch,
-    ...props
-  }: {
-    state: RootState;
-    dispatch: Dispatch<UnknownAction>;
-  }) => {
-    const stepsOrder = useStepStore((state) => state.stepsOrder);
-    const addStep = useStepStore((state) => state.addStep);
+export const App = observer((props: { steps: Steps }) => {
+  const onDragEnd = useCallback((event: DragEndEvent) => {
+    console.log(event);
+    if (!event.over) {
+      return;
+    }
 
-    const onDragEnd = useCallback(
-      (event: DragEndEvent) => {
-        console.log(event);
-        if (!event.over) {
-          return;
-        }
+    props.steps.moveStep(event.over.id.toString(), event.active.id.toString());
+  }, []);
 
-        dispatch(
-          moveStep({
-            moveTo: event.over.id.toString(),
-            dragging: event.active.id.toString(),
-          })
-        );
-      },
-      [dispatch]
-    );
-
-    return (
-      <DndContext onDragEnd={onDragEnd}>
-        <div id="everything">
-          <div className={styles.container}>
-            {stepsOrder.map((stepId, index) => (
-              <>
-                <Card
-                  graphData={selectGraphData(props.state, stepId)}
-                  key={index + props.state.steps.steps[stepId].name + ""}
-                  onDelete={() => dispatch(deleteStep(stepId))}
-                  onNameChange={(name) =>
-                    dispatch(setStepName({ id: stepId, value: name }))
-                  }
-                  onProbabilityChange={(probability) =>
-                    dispatch(
-                      setStepProbability({ id: stepId, value: probability })
-                    )
-                  }
-                  onSkewChange={(value) =>
-                    dispatch(setStepTimeSkew({ id: stepId, value }))
-                  }
-                  onTimeMaxChange={(value) =>
-                    dispatch(
-                      setStepTimeStandardDeviation({ id: stepId, value })
-                    )
-                  }
-                  onTimeMinChange={(value) =>
-                    dispatch(setStepTimeMean({ id: stepId, value }))
-                  }
-                  stepId={stepId}
-                  step={props.state.steps.steps[stepId]}
-                />
-                <Gap stepId={stepId} onClick={() => addStep(stepId)} />
-              </>
-            ))}
-          </div>
-          <Output
-            steps={props.state.steps.steps}
-            stepsOrder={props.state.steps.stepsOrder}
-          />
+  return (
+    <DndContext onDragEnd={onDragEnd}>
+      <div id="everything">
+        <div className={styles.container}>
+          {props.steps.stepsOrder.map((stepId, index) => (
+            <>
+              <Card
+                // graphData={selectGraphData(props.state, stepId)}
+                key={index + props.steps.steps[stepId].name + ""}
+                onDelete={() => props.steps.deleteStep(stepId)}
+                step={props.steps.steps[stepId]}
+                stepId={stepId}
+              />
+              {/* <Gap stepId={stepId} onClick={() => addStep(stepId)} /> */}
+            </>
+          ))}
         </div>
-      </DndContext>
-    );
-  }
-);
+        <Output steps={props.steps} />
+      </div>
+    </DndContext>
+  );
+});

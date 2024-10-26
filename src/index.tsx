@@ -1,13 +1,12 @@
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { Provider } from "react-redux";
-import { store } from "./store";
+import { Steps } from "./mobx";
+
+const steps = new Steps();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <Provider store={store}>
-    <App />
-  </Provider>
+  <App steps={steps} />
 );
 
 // If you want to start measuring performance in your app, pass a function
