@@ -3,8 +3,11 @@ import { erf } from "mathjs";
 const PDF_COEFF = 1 / Math.sqrt(2 * Math.PI);
 const STANDARD_PDF = (x: number) => PDF_COEFF * Math.exp(-0.5 * Math.pow(x, 2));
 const STANDARD_CDF = (x: number) => 0.5 * (1 + erf(x / Math.sqrt(2)));
-export const SKEWED_PDF = (x: number, skew: number) =>
-  2 * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
+export const SKEWED_PDF = (
+  x: number,
+  standardDeviation: number,
+  skew: number
+) => (2 / standardDeviation) * STANDARD_PDF(x) * STANDARD_CDF(skew * x);
 
 // Code borrowed from https://spin.atomicobject.com/skew-normal-prng-javascript/
 const RANDOM_NORMALS = () => {

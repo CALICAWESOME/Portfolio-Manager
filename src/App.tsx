@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import { Gap } from "./card/gap/Gap";
 import { Steps } from "./mobx";
 import { observer } from "mobx-react-lite";
+import { OutputGraph } from "./output/OutputGraph";
 
 export const App = observer((props: { steps: Steps }) => {
   const onDragEnd = useCallback((event: DragEndEvent) => {
@@ -38,6 +39,7 @@ export const App = observer((props: { steps: Steps }) => {
           ))}
         </div>
         <Output steps={props.steps} />
+        <OutputGraph steps={props.steps} />
       </div>
     </DndContext>
   );

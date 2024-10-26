@@ -61,21 +61,54 @@ export class Steps {
     this.stepsOrder = newOrder;
   }
 
+  histogramData?: {
+    y_max: number;
+    histogram: [number, number][];
+  };
+
   generateHistogram() {
     const samples: number[] = [];
+
+    let x_min = Number.POSITIVE_INFINITY,
+      x_max = Number.NEGATIVE_INFINITY;
+
     for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
-      samples.push(
-        // Sum the samples at index i for each step
-        this.stepsOrder.reduce(
-          (sum, stepId) => sum + this.steps[stepId].time.samples[i],
-          0
-        )
+      // Sum the samples at index i for each step
+      const sample = this.stepsOrder.reduce(
+        (sum, stepId) => sum + this.steps[stepId].time.samples[i],
+        0
       );
+
+      samples.push(sample);
+      if (sample < x_min) x_min = sample;
+      if (sample > x_max) x_max = sample;
     }
 
     console.log(samples);
 
-    return {};
+    // OK now, binning!!
+    const bins: { [x: number]: number } = {};
+    const bin_width = (x_max - x_min) / 30;
+    const increment = 1 / (NUM_HISTOGRAM_SAMPLES * bin_width);
+
+    samples.map((sample) => {
+      const bin_index = Math.floor((sample - x_min) / bin_width);
+      const bin_x = bin_index * bin_width + x_min;
+
+      bins[bin_x] = bins[bin_x] + increment || increment;
+    });
+
+    let y_max = 0;
+    const histogram: [number, number][] = Object.entries(bins)
+      .sort(([x1], [x2]) => +x1 - +x2)
+      .map(([x, y]) => {
+        if (y > y_max) y_max = y;
+        return [+x, y];
+      });
+
+    const histogramData = { y_max, histogram };
+    console.log(histogramData);
+    this.histogramData = histogramData;
   }
 
   constructor() {
@@ -123,7 +156,7 @@ export class NormalDistribution {
     // Fill in the right side of the normal graph
     for (; condition(); x += x_increment) {
       // Calculate y first
-      y = SKEWED_PDF(x, this.skew);
+      y = SKEWED_PDF(x, this.standardDeviation, this.skew);
 
       // Then transform x
       transformed_x = x * this.standardDeviation + this.mean;
@@ -141,7 +174,7 @@ export class NormalDistribution {
 
     // Fill in the left side of the normal graph
     for (; condition(); x -= x_increment) {
-      y = SKEWED_PDF(x, this.skew);
+      y = SKEWED_PDF(x, this.standardDeviation, this.skew);
 
       transformed_x = x * this.standardDeviation + this.mean;
 

@@ -222,7 +222,7 @@ const stepsReducer = createSlice({
 
         let coordinates: [number, number][] = [];
         for (let x = -3; x < 3; x += 0.006) {
-          const y = SKEWED_PDF(x, time.skew);
+          const y = SKEWED_PDF(x, time.standardDeviation, time.skew);
 
           if (y > yMax) yMax = y;
 
