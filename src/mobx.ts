@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { SKEWED_PDF } from "./stats_stuff";
+import { RANDOM_SKEW_NORMAL, SKEWED_PDF } from "./stats_stuff";
 import _ from "lodash";
 import { nanoid } from "nanoid";
 
@@ -83,12 +83,6 @@ export class Step {
 }
 
 export class NormalDistribution {
-  samples = {
-    max: Number.NEGATIVE_INFINITY,
-    min: Number.POSITIVE_INFINITY,
-    samples: [],
-  };
-
   constructor(
     public mean: number,
     public skew: number,
@@ -99,6 +93,10 @@ export class NormalDistribution {
     this.skew = skew;
     this.standardDeviation = standardDeviation;
   }
+
+  setMean = (value: number) => (this.mean = value);
+  setSkew = (value: number) => (this.skew = value);
+  setStandardDeviation = (value: number) => (this.standardDeviation = value);
 
   get graphData() {
     const coordinates: [number, number][] = [];
@@ -147,7 +145,28 @@ export class NormalDistribution {
     return { coordinates, yMax };
   }
 
-  setMean = (value: number) => (this.mean = value);
-  setSkew = (value: number) => (this.skew = value);
-  setStandardDeviation = (value: number) => (this.standardDeviation = value);
+  generateHistogram() {
+    const curve_coordinates = this.graphData.coordinates;
+    const x_min = curve_coordinates[0][0];
+    const x_range = curve_coordinates[curve_coordinates.length - 1][0] - x_min;
+
+    const binWidth = x_range / 30;
+
+    const num_samples = 1000;
+    const samples: number[] = [];
+    const bins: { [x: number]: number } = {};
+    const increment = 1 / (num_samples * binWidth);
+
+    for (let i = 0; i < num_samples; i++) {
+      const sample = RANDOM_SKEW_NORMAL(this.skew);
+
+      const transformed_sample = sample * this.standardDeviation + this.mean;
+      samples.push(transformed_sample);
+
+      const bin_index = Math.floor(sample / binWidth);
+      const bin_x = bin_index * binWidth + x_min;
+
+      bins[bin_x] = bins[bin_x] + increment || increment;
+    }
+  }
 }
