@@ -66,8 +66,6 @@ export const Graph = observer(
         .attr("transform", `translate(${marginSides},0)`)
         .call(d3.axisLeft(yScale).ticks(5));
 
-      debugger;
-
       // Add the histogram (if it exists)
       if (props.normalDistribution.histogram.length)
         d3.select(svgRef.current)

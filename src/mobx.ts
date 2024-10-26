@@ -2,6 +2,8 @@ import { makeAutoObservable } from "mobx";
 import { RANDOM_SKEW_NORMAL, SKEWED_PDF } from "./stats_stuff";
 import { nanoid } from "nanoid";
 
+const NUM_HISTOGRAM_SAMPLES = 1000;
+
 export class Steps {
   steps: { [id: string]: Step } = {
     default1: new Step(
@@ -57,6 +59,23 @@ export class Steps {
     }, [] as string[]);
 
     this.stepsOrder = newOrder;
+  }
+
+  generateHistogram() {
+    const samples: number[] = [];
+    for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
+      samples.push(
+        // Sum the samples at index i for each step
+        this.stepsOrder.reduce(
+          (sum, stepId) => sum + this.steps[stepId].time.samples[i],
+          0
+        )
+      );
+    }
+
+    console.log(samples);
+
+    return {};
   }
 
   constructor() {
@@ -143,12 +162,11 @@ export class NormalDistribution {
 
     const bin_width = x_range / 30;
 
-    const num_samples = 1000;
     const samples: number[] = [];
     const bins: { [x: number]: number } = {};
-    const increment = 1 / (num_samples * bin_width);
+    const increment = 1 / (NUM_HISTOGRAM_SAMPLES * bin_width);
 
-    for (let i = 0; i < num_samples; i++) {
+    for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
       const sample =
         RANDOM_SKEW_NORMAL(this.skew) * this.standardDeviation + this.mean;
 
@@ -164,7 +182,7 @@ export class NormalDistribution {
       .sort(([x1], [x2]) => +x1 - +x2)
       .map(([x, y]) => [+x, y]);
 
-    console.log(histogram);
+    // console.log(histogram);
 
     this.samples = samples;
     this.histogram = histogram;

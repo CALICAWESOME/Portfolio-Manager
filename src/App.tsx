@@ -1,5 +1,5 @@
 import { Card } from "./card/Card";
-import { Output } from "./Output";
+import { Output } from "./output/Output";
 
 import styles from "./App.module.css";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";

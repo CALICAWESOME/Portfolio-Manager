@@ -1,4 +1,4 @@
-import { Steps } from "./mobx";
+import { Steps } from "../mobx";
 import { observer } from "mobx-react-lite";
 
 export const Output = observer((props: { steps: Steps }) => {
@@ -13,11 +13,12 @@ export const Output = observer((props: { steps: Steps }) => {
       <br />
       Time distribution:
       <button
-        onClick={() =>
+        onClick={() => {
           props.steps.stepsOrder.map((stepId) =>
             props.steps.steps[stepId].time.generateHistogram()
-          )
-        }
+          );
+          props.steps.generateHistogram();
+        }}
       >
         Simulate!
       </button>
