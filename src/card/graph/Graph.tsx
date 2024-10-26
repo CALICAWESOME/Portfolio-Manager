@@ -110,7 +110,10 @@ export const Graph = observer(
         .attr("stroke-width", 2);
 
       console.timeEnd();
-    }, [props.normalDistribution, props.normalDistribution.histogram]);
+    }, [
+      props.normalDistribution.graphData,
+      props.normalDistribution.histogram,
+    ]);
 
     return (
       <svg className={styles.graph} ref={svgRef}>

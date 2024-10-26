@@ -13,7 +13,11 @@ export const Output = observer((props: { steps: Steps }) => {
       <br />
       Time distribution:
       <button
-        onClick={() => props.steps.steps["default1"].time.generateHistogram()}
+        onClick={() =>
+          props.steps.stepsOrder.map((stepId) =>
+            props.steps.steps[stepId].time.generateHistogram()
+          )
+        }
       >
         Simulate!
       </button>
