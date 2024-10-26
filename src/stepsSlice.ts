@@ -213,6 +213,7 @@ const stepsReducer = createSlice({
         // Turn bins into coordinates
         let yMax = 0;
         const histogramCoordinates: [number, number][] = Object.entries(bins)
+          // Is sorting really necessary?
           .sort(([x1], [x2]) => +x1 - +x2)
           .map(([x, y]) => {
             if (y > yMax) yMax = y;

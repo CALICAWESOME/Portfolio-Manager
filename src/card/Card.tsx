@@ -8,12 +8,7 @@ import { observer } from "mobx-react-lite";
 import { Graph } from "./graph/Graph";
 
 export const Card = observer(
-  (props: {
-    // graphData: ReturnType<typeof selectGraphData>;
-    stepId: string;
-    step: Step;
-    onDelete: () => void;
-  }) => {
+  (props: { stepId: string; step: Step; onDelete: () => void }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
       id: props.stepId,
     });

@@ -25,7 +25,6 @@ export const App = observer((props: { steps: Steps }) => {
           {props.steps.stepsOrder.map((stepId, index) => (
             <>
               <Card
-                // graphData={selectGraphData(props.state, stepId)}
                 key={index + props.steps.steps[stepId].name + ""}
                 onDelete={() => props.steps.deleteStep(stepId)}
                 step={props.steps.steps[stepId]}
