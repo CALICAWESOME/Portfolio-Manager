@@ -75,9 +75,9 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
         .selectAll("rect")
         .data(props.steps.histogramData.histogram)
         .join("rect")
-        .attr("fill", "red")
+        .attr("fill", "blue")
         .attr("height", ([_, y]) => height - marginBottom - yScale(y))
-        .attr("width", 6)
+        .attr("width", 7.75)
         .attr("x", ([x]) => xScale(x))
         .attr("y", ([_, y]) => yScale(y));
 
