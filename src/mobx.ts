@@ -3,12 +3,16 @@ import { SKEWED_PDF } from "./stats_stuff";
 import _ from "lodash";
 
 export class Steps {
-  steps = {
-    default1: new Step(),
-    default2: new Step(),
-    default3: new Step(),
-    default4: new Step(),
-  } as { [id: string]: Step };
+  steps: { [id: string]: Step } = {
+    default1: new Step(
+      "Assay Development",
+      0.75,
+      new NormalDistribution(9, 0, 1)
+    ),
+    default2: new Step("Screening", 0.95, new NormalDistribution(4.5, 0, 1)),
+    default3: new Step("????", 0.75, new NormalDistribution(9, 0, 1)),
+    default4: new Step("Profit", 0.95, new NormalDistribution(4.5, 0, 1)),
+  };
   stepsOrder = ["default1", "default2", "default3", "default4"];
 
   deleteStep(stepId: string) {
@@ -46,29 +50,39 @@ export class Steps {
 }
 
 export class Step {
-  name = "New Step";
-  probabilityOfSuccess = 0.95;
-  time = new NormalDistribution();
+  constructor(
+    public name: string,
+    public probabilityOfSuccess: number,
+    public time: NormalDistribution
+  ) {
+    makeAutoObservable(this);
+    this.name = name;
+    this.probabilityOfSuccess = probabilityOfSuccess;
+    this.time = time;
+  }
 
   setName = (name: string) => (this.name = name);
   setProbabilitiyOfSuccess = (value: number) =>
     (this.probabilityOfSuccess = value);
-
-  constructor() {
-    makeAutoObservable(this);
-  }
 }
 
 export class NormalDistribution {
-  mean = 0;
-  skew = 0;
-  standardDeviation = 1;
-
   samples = {
     max: Number.NEGATIVE_INFINITY,
     min: Number.POSITIVE_INFINITY,
     samples: [],
   };
+
+  constructor(
+    public mean: number,
+    public skew: number,
+    public standardDeviation: number
+  ) {
+    makeAutoObservable(this);
+    this.mean = mean;
+    this.skew = skew;
+    this.standardDeviation = standardDeviation;
+  }
 
   get graphData() {
     const coordinates: [number, number][] = [];
@@ -78,7 +92,7 @@ export class NormalDistribution {
     let y = Number.POSITIVE_INFINITY;
     let yMax = 0;
     const x_increment = 0.01;
-    const y_threshold = 0.01;
+    const y_threshold = 0.005;
 
     const condition = () => y >= y_threshold && transformed_x >= 0;
 
@@ -120,8 +134,4 @@ export class NormalDistribution {
   setMean = (value: number) => (this.mean = value);
   setSkew = (value: number) => (this.skew = value);
   setStandardDeviation = (value: number) => (this.standardDeviation = value);
-
-  constructor() {
-    makeAutoObservable(this);
-  }
 }
