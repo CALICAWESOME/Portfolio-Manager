@@ -12,7 +12,11 @@ export const Output = observer((props: { steps: Steps }) => {
       Overall probability of success: {overallPos.toFixed(2)}
       <br />
       Time distribution:
-      {/* <button onClick={() => dispatch(generateSamples())}>Simulate!</button> */}
+      <button
+        onClick={() => props.steps.steps["default1"].time.generateHistogram()}
+      >
+        Simulate!
+      </button>
     </div>
   );
 });

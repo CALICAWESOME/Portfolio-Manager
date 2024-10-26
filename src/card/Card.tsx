@@ -57,7 +57,7 @@ export const Card = observer(
 
         <div className={styles["time-to-completion"]}>
           <Graph
-            graphData={props.step.time.graphData}
+            normalDistribution={props.step.time}
             // binWidth={props.graphData.binWidth}
             // data={props.graphData.coordinates}
             // histogramData={props.graphData.histogramCoordinates}

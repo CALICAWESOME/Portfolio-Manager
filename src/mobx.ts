@@ -1,6 +1,5 @@
 import { makeAutoObservable } from "mobx";
 import { RANDOM_SKEW_NORMAL, SKEWED_PDF } from "./stats_stuff";
-import _ from "lodash";
 import { nanoid } from "nanoid";
 
 export class Steps {
@@ -83,16 +82,8 @@ export class Step {
 }
 
 export class NormalDistribution {
-  constructor(
-    public mean: number,
-    public skew: number,
-    public standardDeviation: number
-  ) {
-    makeAutoObservable(this);
-    this.mean = mean;
-    this.skew = skew;
-    this.standardDeviation = standardDeviation;
-  }
+  samples: number[] = [];
+  histogram: [number, number][] = [];
 
   setMean = (value: number) => (this.mean = value);
   setSkew = (value: number) => (this.skew = value);
@@ -150,23 +141,43 @@ export class NormalDistribution {
     const x_min = curve_coordinates[0][0];
     const x_range = curve_coordinates[curve_coordinates.length - 1][0] - x_min;
 
-    const binWidth = x_range / 30;
+    const bin_width = x_range / 30;
 
     const num_samples = 1000;
     const samples: number[] = [];
     const bins: { [x: number]: number } = {};
-    const increment = 1 / (num_samples * binWidth);
+    const increment = 1 / (num_samples * bin_width);
 
     for (let i = 0; i < num_samples; i++) {
-      const sample = RANDOM_SKEW_NORMAL(this.skew);
+      const sample =
+        RANDOM_SKEW_NORMAL(this.skew) * this.standardDeviation + this.mean;
 
-      const transformed_sample = sample * this.standardDeviation + this.mean;
-      samples.push(transformed_sample);
+      samples.push(sample);
 
-      const bin_index = Math.floor(sample / binWidth);
-      const bin_x = bin_index * binWidth + x_min;
+      const bin_index = Math.floor((sample - x_min) / bin_width);
+      const bin_x = bin_index * bin_width + x_min;
 
       bins[bin_x] = bins[bin_x] + increment || increment;
     }
+
+    const histogram: [number, number][] = Object.entries(bins)
+      .sort(([x1], [x2]) => +x1 - +x2)
+      .map(([x, y]) => [+x, y]);
+
+    console.log(histogram);
+
+    this.samples = samples;
+    this.histogram = histogram;
+  }
+
+  constructor(
+    public mean: number,
+    public skew: number,
+    public standardDeviation: number
+  ) {
+    makeAutoObservable(this);
+    this.mean = mean;
+    this.skew = skew;
+    this.standardDeviation = standardDeviation;
   }
 }
