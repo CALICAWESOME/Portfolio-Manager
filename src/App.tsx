@@ -31,7 +31,10 @@ export const App = observer((props: { steps: Steps }) => {
                 step={props.steps.steps[stepId]}
                 stepId={stepId}
               />
-              {/* <Gap stepId={stepId} onClick={() => addStep(stepId)} /> */}
+              <Gap
+                stepId={stepId}
+                onClick={() => props.steps.addStep(stepId)}
+              />
             </>
           ))}
         </div>

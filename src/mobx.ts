@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { SKEWED_PDF } from "./stats_stuff";
 import _ from "lodash";
+import { nanoid } from "nanoid";
 
 export class Steps {
   steps: { [id: string]: Step } = {
@@ -14,6 +15,21 @@ export class Steps {
     default4: new Step("Profit", 0.95, new NormalDistribution(4.5, 0, 1)),
   };
   stepsOrder = ["default1", "default2", "default3", "default4"];
+
+  addStep(stepId: string) {
+    const newId = nanoid(10);
+
+    // Incept new step
+    this.steps[newId] = new Step(
+      "New Step",
+      0.95,
+      new NormalDistribution(4.5, 0, 0.5)
+    );
+
+    // Add new step into list
+    const index = this.stepsOrder.indexOf(stepId);
+    this.stepsOrder.splice(index + 1, 0, newId);
+  }
 
   deleteStep(stepId: string) {
     delete this.steps[stepId];
