@@ -1,4 +1,6 @@
 import { makeAutoObservable } from "mobx";
+import { SKEWED_PDF } from "./stats_stuff";
+import _ from "lodash";
 
 export class Steps {
   steps = {
@@ -48,16 +50,16 @@ export class Step {
   probabilityOfSuccess = 0.95;
   time = new NormalDistribution();
 
-  constructor() {
-    makeAutoObservable(this);
-  }
-
   setName = (name: string) => (this.name = name);
   setProbabilitiyOfSuccess = (value: number) =>
     (this.probabilityOfSuccess = value);
+
+  constructor() {
+    makeAutoObservable(this);
+  }
 }
 
-class NormalDistribution {
+export class NormalDistribution {
   mean = 0;
   skew = 0;
   standardDeviation = 1;
@@ -68,11 +70,58 @@ class NormalDistribution {
     samples: [],
   };
 
-  constructor() {
-    makeAutoObservable(this);
+  get graphData() {
+    const coordinates: [number, number][] = [];
+
+    let x = 0;
+    let transformed_x = Number.POSITIVE_INFINITY;
+    let y = Number.POSITIVE_INFINITY;
+    let yMax = 0;
+    const x_increment = 0.01;
+    const y_threshold = 0.01;
+
+    const condition = () => y >= y_threshold && transformed_x >= 0;
+
+    // Fill in the right side of the normal graph
+    for (; condition(); x += x_increment) {
+      // Calculate y first
+      y = SKEWED_PDF(x, this.skew);
+
+      // Then transform x
+      transformed_x = x * this.standardDeviation + this.mean;
+
+      coordinates.push([transformed_x, y]);
+
+      if (y > yMax) {
+        yMax = y;
+      }
+    }
+
+    // Reset to the middle of the graph
+    x = -x_increment;
+    y = Number.POSITIVE_INFINITY;
+
+    // Fill in the left side of the normal graph
+    for (; condition(); x -= x_increment) {
+      y = SKEWED_PDF(x, this.skew);
+
+      transformed_x = x * this.standardDeviation + this.mean;
+
+      coordinates.unshift([transformed_x, y]);
+
+      if (y > yMax) {
+        yMax = y;
+      }
+    }
+
+    return { coordinates, yMax };
   }
 
   setMean = (value: number) => (this.mean = value);
   setSkew = (value: number) => (this.skew = value);
   setStandardDeviation = (value: number) => (this.standardDeviation = value);
+
+  constructor() {
+    makeAutoObservable(this);
+  }
 }

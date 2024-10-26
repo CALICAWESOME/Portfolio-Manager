@@ -2,15 +2,16 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
 import styles from "./Graph.module.css";
+import { NormalDistribution } from "../../mobx";
 
-export function Graph(props: {
-  binWidth: number;
-  data: [number, number][];
-  histogramData: [number, number][];
-  xMax: number;
-  xMin: number;
-  yMax: number;
-}) {
+// binWidth: number;
+// data: [number, number][];
+// histogramData: [number, number][];
+// xMax: number;
+// xMin: number;
+// yMax: number;
+
+export function Graph(props: { graphData: NormalDistribution["graphData"] }) {
   const areaRef = useRef<SVGPathElement>(null);
   const lineRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -40,12 +41,16 @@ export function Graph(props: {
     const marginTop = 10;
     const width = svgDomRect.width;
 
+    const graphData = props.graphData.coordinates;
+    const xMin = graphData[0][0];
+    const xMax = graphData[graphData.length - 1][0];
+
     const xScale = d3
-      .scaleLinear([props.xMin, props.xMax], [marginSides, width - marginSides])
+      .scaleLinear([xMin, xMax], [marginSides, width - marginSides])
       .clamp(true);
 
     const yScale = d3.scaleLinear(
-      [0, props.yMax],
+      [0, props.graphData.yMax],
       [height - marginBottom, marginTop]
     );
 
@@ -59,15 +64,15 @@ export function Graph(props: {
       .attr("transform", `translate(${marginSides},0)`)
       .call(d3.axisLeft(yScale).ticks(5));
 
-    d3.select(svgRef.current)
-      .selectAll("rect")
-      .data(props.histogramData)
-      .join("rect")
-      .attr("fill", "red")
-      .attr("height", ([_, y]) => height - marginBottom - yScale(y))
-      .attr("width", 6)
-      .attr("x", ([x]) => xScale(x))
-      .attr("y", ([_, y]) => yScale(y));
+    // d3.select(svgRef.current)
+    //   .selectAll("rect")
+    //   .data(props.histogramData)
+    //   .join("rect")
+    //   .attr("fill", "red")
+    //   .attr("height", ([_, y]) => height - marginBottom - yScale(y))
+    //   .attr("width", 6)
+    //   .attr("x", ([x]) => xScale(x))
+    //   .attr("y", ([_, y]) => yScale(y));
 
     d3.select(areaRef.current)
       .attr(
@@ -78,7 +83,7 @@ export function Graph(props: {
           .y0(height - marginBottom)
           .y1(([_, y]) => yScale(y))(
           // .curve(d3.curveBasis)
-          props.data
+          props.graphData.coordinates
         )
       )
       .attr("fill", "lightblue");
@@ -91,7 +96,7 @@ export function Graph(props: {
           .x(([x, _]) => xScale(x))
           .y(([_, y]) => yScale(y))(
           // .curve(d3.curveBasis)
-          props.data
+          props.graphData.coordinates
         )
       )
       .attr("fill", "none")
@@ -99,7 +104,7 @@ export function Graph(props: {
       .attr("stroke-width", 2);
 
     console.timeEnd();
-  }, [props.data, props.xMax, props.xMin, props.yMax]);
+  }, [props.graphData]);
 
   return (
     <svg className={styles.graph} ref={svgRef}>

@@ -5,6 +5,7 @@ import styles from "./Card.module.css";
 import { useDraggable } from "@dnd-kit/core";
 import { Step } from "../mobx";
 import { observer } from "mobx-react-lite";
+import { Graph } from "./graph/Graph";
 
 export const Card = observer(
   (props: {
@@ -60,14 +61,15 @@ export const Card = observer(
         </div>
 
         <div className={styles["time-to-completion"]}>
-          {/* <Graph
-          binWidth={props.graphData.binWidth}
-          data={props.graphData.coordinates}
-          histogramData={props.graphData.histogramCoordinates}
-          xMax={props.graphData.xMax}
-          xMin={props.graphData.xMin}
-          yMax={props.graphData.yMax}
-        /> */}
+          <Graph
+            graphData={props.step.time.graphData}
+            // binWidth={props.graphData.binWidth}
+            // data={props.graphData.coordinates}
+            // histogramData={props.graphData.histogramCoordinates}
+            // xMax={props.graphData.xMax}
+            // xMin={props.graphData.xMin}
+            // yMax={props.graphData.yMax}
+          />
           Skew: {props.step.time.skew}
           <input
             defaultValue={props.step.time.skew}
