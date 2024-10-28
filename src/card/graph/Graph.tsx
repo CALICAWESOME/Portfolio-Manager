@@ -39,7 +39,8 @@ export const Graph = observer(
       // Declare the chart dimensions and margins.
       const height = svgDomRect.height;
       const marginBottom = 20;
-      const marginSides = 30;
+      const marginLeft = 30;
+      const marginRight = 10;
       const marginTop = 10;
       const width = svgDomRect.width;
 
@@ -48,7 +49,7 @@ export const Graph = observer(
       const xMax = graphData[graphData.length - 1][0];
 
       const xScale = d3
-        .scaleLinear([xMin, xMax], [marginSides, width - marginSides])
+        .scaleLinear([xMin, xMax], [marginLeft, width - marginRight])
         .clamp(true);
 
       const yScale = d3.scaleLinear(
@@ -63,7 +64,7 @@ export const Graph = observer(
 
       // Add the y-axis.
       d3.select(yAxisRef.current)
-        .attr("transform", `translate(${marginSides},0)`)
+        .attr("transform", `translate(${marginLeft},0)`)
         .call(d3.axisLeft(yScale).ticks(5));
 
       // Add the histogram (if it exists)

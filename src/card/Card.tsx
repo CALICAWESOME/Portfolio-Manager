@@ -41,11 +41,11 @@ export const Card = observer(
         <div className={styles["probability-of-success"]}>
           <input
             className={styles["probability-input"]}
-            defaultValue={props.step.probabilityOfSuccess}
+            defaultValue={props.step.probabilityOfSuccess.mean}
             max={1}
             min={0}
             onChange={(event) =>
-              props.step.setProbabilitiyOfSuccess(
+              props.step.probabilityOfSuccess.setMean(
                 parseFloat(event.target.value)
               )
             }

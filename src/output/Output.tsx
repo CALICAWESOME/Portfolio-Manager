@@ -3,7 +3,8 @@ import { observer } from "mobx-react-lite";
 
 export const Output = observer((props: { steps: Steps }) => {
   const overallPos = props.steps.stepsOrder.reduce(
-    (result, stepId) => result * props.steps.steps[stepId].probabilityOfSuccess,
+    (result, stepId) =>
+      result * props.steps.steps[stepId].probabilityOfSuccess.mean,
     1
   );
 
@@ -11,7 +12,7 @@ export const Output = observer((props: { steps: Steps }) => {
     <div style={{ marginLeft: 16 }}>
       Overall probability of success: {overallPos.toFixed(2)}
       <br />
-      Time distribution:
+      Time to completion (days):
       <button
         onClick={() => {
           props.steps.stepsOrder.map((stepId) =>

@@ -8,12 +8,24 @@ export class Steps {
   steps: { [id: string]: Step } = {
     default1: new Step(
       "Assay Development",
-      0.75,
+      new NormalDistribution(0.75, 0, 0.01),
       new NormalDistribution(9, 0, 1)
     ),
-    default2: new Step("Screening", 0.95, new NormalDistribution(4.5, 0, 1)),
-    default3: new Step("????", 0.75, new NormalDistribution(9, 0, 1)),
-    default4: new Step("Profit", 0.95, new NormalDistribution(4.5, 0, 1)),
+    default2: new Step(
+      "Screening",
+      new NormalDistribution(0.95, 0, 0.01),
+      new NormalDistribution(4.5, 0, 1)
+    ),
+    default3: new Step(
+      "????",
+      new NormalDistribution(0.75, 0, 0.01),
+      new NormalDistribution(9, 0, 1)
+    ),
+    default4: new Step(
+      "Profit",
+      new NormalDistribution(0.95, 0, 0.01),
+      new NormalDistribution(4.5, 0, 1)
+    ),
   };
   stepsOrder = ["default1", "default2", "default3", "default4"];
 
@@ -23,7 +35,7 @@ export class Steps {
     // Incept new step
     this.steps[newId] = new Step(
       "New Step",
-      0.95,
+      new NormalDistribution(0.95, 0, 0.01),
       new NormalDistribution(4.5, 0, 0.5)
     );
 
@@ -119,7 +131,7 @@ export class Steps {
 export class Step {
   constructor(
     public name: string,
-    public probabilityOfSuccess: number,
+    public probabilityOfSuccess: NormalDistribution,
     public time: NormalDistribution
   ) {
     makeAutoObservable(this);
@@ -129,8 +141,6 @@ export class Step {
   }
 
   setName = (name: string) => (this.name = name);
-  setProbabilitiyOfSuccess = (value: number) =>
-    (this.probabilityOfSuccess = value);
 }
 
 export class NormalDistribution {
