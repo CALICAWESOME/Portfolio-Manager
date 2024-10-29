@@ -38,33 +38,61 @@ export const Card = observer(
           type="text"
         />
 
-        <div className={styles["probability-of-success"]}>
+        <div className={styles["time-to-completion"]}>
+          Probability of Success
+          <Graph
+            normalDistribution={props.step.probabilityOfSuccess}
+            xMin={0}
+            xMax={1}
+            // yMax={40}
+          />
+          Mean: {props.step.probabilityOfSuccess.mean}
           <input
-            className={styles["probability-input"]}
             defaultValue={props.step.probabilityOfSuccess.mean}
-            max={1}
             min={0}
+            max={1}
             onChange={(event) =>
               props.step.probabilityOfSuccess.setMean(
                 parseFloat(event.target.value)
               )
             }
             step={0.01}
-            type="number"
+            type="range"
           />
-          Probability of Success
+          Skew: {props.step.probabilityOfSuccess.skew}
+          <input
+            defaultValue={props.step.probabilityOfSuccess.skew}
+            min={-5}
+            max={5}
+            onChange={(event) =>
+              props.step.probabilityOfSuccess.setSkew(
+                parseFloat(event.target.value)
+              )
+            }
+            step={0.01}
+            type="range"
+          />
+          <div className={styles["mean-stdev-picker"]}>
+            <input
+              className={styles.input}
+              defaultValue={props.step.probabilityOfSuccess.standardDeviation}
+              min={0}
+              onChange={(event) =>
+                props.step.probabilityOfSuccess.setStandardDeviation(
+                  parseFloat(event.target.value)
+                )
+              }
+              step={0.01}
+              type="number"
+            />
+            Standard Deviation
+          </div>
         </div>
 
+        <hr />
         <div className={styles["time-to-completion"]}>
-          <Graph
-            normalDistribution={props.step.time}
-            // binWidth={props.graphData.binWidth}
-            // data={props.graphData.coordinates}
-            // histogramData={props.graphData.histogramCoordinates}
-            // xMax={props.graphData.xMax}
-            // xMin={props.graphData.xMin}
-            // yMax={props.graphData.yMax}
-          />
+          Time to completion
+          <Graph normalDistribution={props.step.time} />
           Skew: {props.step.time.skew}
           <input
             defaultValue={props.step.time.skew}

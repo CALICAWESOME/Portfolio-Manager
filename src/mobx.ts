@@ -2,7 +2,12 @@ import { makeAutoObservable } from "mobx";
 import { RANDOM_SKEW_NORMAL, SKEWED_PDF } from "./stats_stuff";
 import { nanoid } from "nanoid";
 
-const NUM_HISTOGRAM_SAMPLES = 1000;
+const NUM_HISTOGRAM_SAMPLES = 10000;
+
+export interface HistogramData {
+  y_max: number;
+  histogram: [number, number][];
+}
 
 export class Steps {
   steps: { [id: string]: Step } = {
@@ -28,6 +33,9 @@ export class Steps {
     ),
   };
   stepsOrder = ["default1", "default2", "default3", "default4"];
+
+  timeHistogramData?: HistogramData;
+  probabilityOfSuccessHistogramData?: HistogramData;
 
   addStep(stepId: string) {
     const newId = nanoid(10);
@@ -73,12 +81,7 @@ export class Steps {
     this.stepsOrder = newOrder;
   }
 
-  histogramData?: {
-    y_max: number;
-    histogram: [number, number][];
-  };
-
-  generateHistogram() {
+  generateTimeHistogram() {
     const samples: number[] = [];
 
     let x_min = Number.POSITIVE_INFINITY,
@@ -120,7 +123,53 @@ export class Steps {
 
     const histogramData = { y_max, histogram };
     console.log(histogramData);
-    this.histogramData = histogramData;
+    this.timeHistogramData = histogramData;
+  }
+
+  generateProbabilityOfSuccessHistogram() {
+    const samples: number[] = [];
+
+    let x_min = Number.POSITIVE_INFINITY,
+      x_max = Number.NEGATIVE_INFINITY;
+
+    for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
+      // Sum the samples at index i for each step
+      const sample = this.stepsOrder.reduce(
+        (totalProb, stepId) =>
+          totalProb * this.steps[stepId].probabilityOfSuccess.samples[i],
+        1
+      );
+
+      samples.push(sample);
+      if (sample < x_min) x_min = sample;
+      if (sample > x_max) x_max = sample;
+    }
+
+    console.log(samples);
+
+    // OK now, binning!!
+    const bins: { [x: number]: number } = {};
+    const bin_width = (x_max - x_min) / 30;
+    const increment = 1 / (NUM_HISTOGRAM_SAMPLES * bin_width);
+
+    samples.map((sample) => {
+      const bin_index = Math.floor((sample - x_min) / bin_width);
+      const bin_x = bin_index * bin_width + x_min;
+
+      bins[bin_x] = bins[bin_x] + increment || increment;
+    });
+
+    let y_max = 0;
+    const histogram: [number, number][] = Object.entries(bins)
+      .sort(([x1], [x2]) => +x1 - +x2)
+      .map(([x, y]) => {
+        if (y > y_max) y_max = y;
+        return [+x, y];
+      });
+
+    const histogramData = { y_max, histogram };
+    console.log(histogramData);
+    this.probabilityOfSuccessHistogramData = histogramData;
   }
 
   constructor() {
@@ -145,7 +194,7 @@ export class Step {
 
 export class NormalDistribution {
   samples: number[] = [];
-  histogram: [number, number][] = [];
+  histogramData?: HistogramData;
 
   setMean = (value: number) => (this.mean = value);
   setSkew = (value: number) => (this.skew = value);
@@ -208,6 +257,7 @@ export class NormalDistribution {
     const samples: number[] = [];
     const bins: { [x: number]: number } = {};
     const increment = 1 / (NUM_HISTOGRAM_SAMPLES * bin_width);
+    let y_max = 0;
 
     for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
       const sample =
@@ -215,6 +265,7 @@ export class NormalDistribution {
 
       samples.push(sample);
 
+      // Add sample to appropriate bin
       const bin_index = Math.floor((sample - x_min) / bin_width);
       const bin_x = bin_index * bin_width + x_min;
 
@@ -223,12 +274,13 @@ export class NormalDistribution {
 
     const histogram: [number, number][] = Object.entries(bins)
       .sort(([x1], [x2]) => +x1 - +x2)
-      .map(([x, y]) => [+x, y]);
-
-    // console.log(histogram);
+      .map(([x, y]) => {
+        if (y > y_max) y_max = y;
+        return [+x, y];
+      });
 
     this.samples = samples;
-    this.histogram = histogram;
+    this.histogramData = { histogram, y_max };
   }
 
   constructor(

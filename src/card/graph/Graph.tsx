@@ -13,7 +13,12 @@ import { observer } from "mobx-react-lite";
 // yMax: number;
 
 export const Graph = observer(
-  (props: { normalDistribution: NormalDistribution }) => {
+  (props: {
+    normalDistribution: NormalDistribution;
+    xMin?: number;
+    xMax?: number;
+    yMax?: number;
+  }) => {
     const areaRef = useRef<SVGPathElement>(null);
     const lineRef = useRef<SVGPathElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
@@ -45,15 +50,28 @@ export const Graph = observer(
       const width = svgDomRect.width;
 
       const graphData = props.normalDistribution.graphData.coordinates;
-      const xMin = graphData[0][0];
-      const xMax = graphData[graphData.length - 1][0];
+
+      // Guard for xMin, xMax, or yMax === 0 (thanks, Javascript)
+      const xMin = props.xMin === undefined ? graphData[0][0] : props.xMin;
+      const xMax =
+        props.xMax === undefined
+          ? graphData[graphData.length - 1][0]
+          : props.xMax;
+
+      const yMax =
+        props.yMax === undefined
+          ? Math.max(
+              props.normalDistribution.graphData.yMax,
+              props.normalDistribution.histogramData?.y_max || 0
+            )
+          : props.yMax;
 
       const xScale = d3
         .scaleLinear([xMin, xMax], [marginLeft, width - marginRight])
         .clamp(true);
 
       const yScale = d3.scaleLinear(
-        [0, props.normalDistribution.graphData.yMax],
+        [0, yMax],
         [height - marginBottom, marginTop]
       );
 
@@ -68,14 +86,14 @@ export const Graph = observer(
         .call(d3.axisLeft(yScale).ticks(5));
 
       // Add the histogram (if it exists)
-      if (props.normalDistribution.histogram.length)
+      if (props.normalDistribution.histogramData)
         d3.select(svgRef.current)
           .selectAll("rect")
-          .data(props.normalDistribution.histogram)
+          .data(props.normalDistribution.histogramData.histogram)
           .join("rect")
           .attr("fill", "red")
           .attr("height", ([_, y]) => height - marginBottom - yScale(y))
-          .attr("width", 6)
+          .attr("width", 5)
           .attr("x", ([x]) => xScale(x))
           .attr("y", ([_, y]) => yScale(y));
 
@@ -111,7 +129,7 @@ export const Graph = observer(
       console.timeEnd();
     }, [
       props.normalDistribution.graphData,
-      props.normalDistribution.histogram,
+      props.normalDistribution.histogramData,
     ]);
 
     return (

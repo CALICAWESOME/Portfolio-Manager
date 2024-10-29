@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
 import styles from "./OutputGraph.module.css";
-import { Steps } from "../mobx";
+import { HistogramData, Steps } from "../mobx";
 import { observer } from "mobx-react-lite";
 
 // binWidth: number;
@@ -12,7 +12,7 @@ import { observer } from "mobx-react-lite";
 // xMin: number;
 // yMax: number;
 
-export const OutputGraph = observer((props: { steps: Steps }) => {
+export const OutputGraph = (props: { histogramData: HistogramData }) => {
   const areaRef = useRef<SVGPathElement>(null);
   const lineRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -26,8 +26,7 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
         lineRef.current &&
         svgRef.current &&
         xAxisRef.current &&
-        yAxisRef.current &&
-        props.steps.histogramData
+        yAxisRef.current
       )
     ) {
       return;
@@ -43,7 +42,7 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
     const marginTop = 10;
     const width = svgDomRect.width;
 
-    const histogram = props.steps.histogramData.histogram;
+    const histogram = props.histogramData.histogram;
     const xMin = histogram[0][0];
     const xMax = histogram[histogram.length - 1][0];
 
@@ -52,7 +51,7 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
       .clamp(true);
 
     const yScale = d3.scaleLinear(
-      [0, props.steps.histogramData.y_max],
+      [0, props.histogramData.y_max],
       [height - marginBottom, marginTop]
     );
 
@@ -66,14 +65,12 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
       .attr("transform", `translate(${marginSides},0)`)
       .call(d3.axisLeft(yScale).ticks(5));
 
-    debugger;
-
     // Add the histogram (if it exists)
     // if (props.normalDistribution.histogram.length)
-    if (props.steps.histogramData.histogram)
+    if (props.histogramData.histogram)
       d3.select(svgRef.current)
         .selectAll("rect")
-        .data(props.steps.histogramData.histogram)
+        .data(props.histogramData.histogram)
         .join("rect")
         .attr("fill", "blue")
         .attr("height", ([_, y]) => height - marginBottom - yScale(y))
@@ -82,7 +79,7 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
         .attr("y", ([_, y]) => yScale(y));
 
     console.timeEnd();
-  }, [props.steps.histogramData]);
+  }, [props.histogramData]);
 
   return (
     <svg className={styles["output-graph"]} ref={svgRef}>
@@ -92,4 +89,4 @@ export const OutputGraph = observer((props: { steps: Steps }) => {
       <g ref={yAxisRef} />
     </svg>
   );
-});
+};

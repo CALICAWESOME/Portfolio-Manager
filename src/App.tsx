@@ -39,7 +39,14 @@ export const App = observer((props: { steps: Steps }) => {
           ))}
         </div>
         <Output steps={props.steps} />
-        <OutputGraph steps={props.steps} />
+        {props.steps.timeHistogramData && (
+          <OutputGraph histogramData={props.steps.timeHistogramData} />
+        )}
+        {props.steps.probabilityOfSuccessHistogramData && (
+          <OutputGraph
+            histogramData={props.steps.probabilityOfSuccessHistogramData}
+          />
+        )}
       </div>
     </DndContext>
   );
