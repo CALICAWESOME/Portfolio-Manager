@@ -44,7 +44,7 @@ export const Card = observer(
             normalDistribution={props.step.probabilityOfSuccess}
             xMin={0}
             xMax={1}
-            // yMax={40}
+            yMax={100}
           />
           Mean: {props.step.probabilityOfSuccess.mean}
           <input
@@ -92,7 +92,7 @@ export const Card = observer(
         <hr />
         <div className={styles["time-to-completion"]}>
           Time to completion
-          <Graph normalDistribution={props.step.time} />
+          <Graph normalDistribution={props.step.time} xMin={0} yMax={1} />
           Skew: {props.step.time.skew}
           <input
             defaultValue={props.step.time.skew}
