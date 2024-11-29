@@ -266,7 +266,7 @@ export class NormalDistribution {
         return [+x, y];
       });
 
-    return { samples, data: { histogram, y_max } };
+    return { samples, data: { histogram, y_max, bin_width } };
   }
 
   constructor(

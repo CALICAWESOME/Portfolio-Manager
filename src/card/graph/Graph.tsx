@@ -85,6 +85,13 @@ export const Graph = observer(
         .attr("transform", `translate(${marginLeft},0)`)
         .call(d3.axisLeft(yScale).ticks(5));
 
+      // Let's do some scaling shit
+      const graphWidth = width - marginLeft - marginRight;
+      const graphRange = xMax - xMin;
+      const scaledBinWidth =
+        (props.normalDistribution.histogram.data.bin_width * graphWidth) /
+        graphRange;
+
       // Add the histogram (if it exists)
       if (props.normalDistribution.histogram.data.histogram)
         d3.select(svgRef.current)
@@ -93,7 +100,7 @@ export const Graph = observer(
           .join("rect")
           .attr("fill", "red")
           .attr("height", ([_, y]) => height - marginBottom - yScale(y))
-          .attr("width", 5)
+          .attr("width", scaledBinWidth)
           .attr("x", ([x]) => xScale(x))
           .attr("y", ([_, y]) => yScale(y));
 
