@@ -5,7 +5,7 @@ export const Output = observer((props: { steps: Steps }) => {
   return (
     <div style={{ marginLeft: 16 }}>
       Time to Completion | Probability of Success
-      <button
+      {/* <button
         onClick={() => {
           props.steps.stepsOrder.map((stepId) => {
             const step = props.steps.steps[stepId];
@@ -19,7 +19,7 @@ export const Output = observer((props: { steps: Steps }) => {
         }}
       >
         Simulate!
-      </button>
+      </button> */}
     </div>
   );
 });

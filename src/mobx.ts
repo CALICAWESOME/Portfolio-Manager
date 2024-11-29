@@ -34,9 +34,6 @@ export class Steps {
   };
   stepsOrder = ["default1", "default2", "default3", "default4"];
 
-  timeHistogramData?: HistogramData;
-  probabilityOfSuccessHistogramData?: HistogramData;
-
   addStep(stepId: string) {
     const newId = nanoid(10);
 
@@ -81,7 +78,7 @@ export class Steps {
     this.stepsOrder = newOrder;
   }
 
-  generateTimeHistogram() {
+  get timeHistogram() {
     const samples: number[] = [];
 
     let x_min = Number.POSITIVE_INFINITY,
@@ -90,7 +87,7 @@ export class Steps {
     for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
       // Sum the samples at index i for each step
       const sample = this.stepsOrder.reduce(
-        (sum, stepId) => sum + this.steps[stepId].time.samples[i],
+        (sum, stepId) => sum + this.steps[stepId].time.histogram.samples[i],
         0
       );
 
@@ -99,14 +96,12 @@ export class Steps {
       if (sample > x_max) x_max = sample;
     }
 
-    console.log(samples);
-
     // OK now, binning!!
     const bins: { [x: number]: number } = {};
     const bin_width = (x_max - x_min) / 30;
     const increment = 1 / (NUM_HISTOGRAM_SAMPLES * bin_width);
 
-    samples.map((sample) => {
+    samples.forEach((sample) => {
       const bin_index = Math.floor((sample - x_min) / bin_width);
       const bin_x = bin_index * bin_width + x_min;
 
@@ -121,12 +116,10 @@ export class Steps {
         return [+x, y];
       });
 
-    const histogramData = { y_max, histogram };
-    console.log(histogramData);
-    this.timeHistogramData = histogramData;
+    return { y_max, histogram };
   }
 
-  generateProbabilityOfSuccessHistogram() {
+  get probabilityOfSuccessHistogram() {
     const samples: number[] = [];
 
     let x_min = Number.POSITIVE_INFINITY,
@@ -136,7 +129,8 @@ export class Steps {
       // Sum the samples at index i for each step
       const sample = this.stepsOrder.reduce(
         (totalProb, stepId) =>
-          totalProb * this.steps[stepId].probabilityOfSuccess.samples[i],
+          totalProb *
+          this.steps[stepId].probabilityOfSuccess.histogram.samples[i],
         1
       );
 
@@ -145,14 +139,12 @@ export class Steps {
       if (sample > x_max) x_max = sample;
     }
 
-    console.log(samples);
-
     // OK now, binning!!
     const bins: { [x: number]: number } = {};
     const bin_width = (x_max - x_min) / 30;
     const increment = 1 / (NUM_HISTOGRAM_SAMPLES * bin_width);
 
-    samples.map((sample) => {
+    samples.forEach((sample) => {
       const bin_index = Math.floor((sample - x_min) / bin_width);
       const bin_x = bin_index * bin_width + x_min;
 
@@ -167,9 +159,7 @@ export class Steps {
         return [+x, y];
       });
 
-    const histogramData = { y_max, histogram };
-    console.log(histogramData);
-    this.probabilityOfSuccessHistogramData = histogramData;
+    return { y_max, histogram };
   }
 
   constructor() {
@@ -193,9 +183,6 @@ export class Step {
 }
 
 export class NormalDistribution {
-  samples: number[] = [];
-  histogramData?: HistogramData;
-
   setMean = (value: number) => (this.mean = value);
   setSkew = (value: number) => (this.skew = value);
   setStandardDeviation = (value: number) => (this.standardDeviation = value);
@@ -247,7 +234,7 @@ export class NormalDistribution {
     return { coordinates, yMax };
   }
 
-  generateHistogram() {
+  get histogram() {
     const curve_coordinates = this.graphData.coordinates;
     const x_min = curve_coordinates[0][0];
     const x_range = curve_coordinates[curve_coordinates.length - 1][0] - x_min;
@@ -279,8 +266,7 @@ export class NormalDistribution {
         return [+x, y];
       });
 
-    this.samples = samples;
-    this.histogramData = { histogram, y_max };
+    return { samples, data: { histogram, y_max } };
   }
 
   constructor(

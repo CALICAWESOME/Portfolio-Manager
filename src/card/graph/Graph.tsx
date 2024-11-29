@@ -62,7 +62,7 @@ export const Graph = observer(
         props.yMax === undefined
           ? Math.max(
               props.normalDistribution.graphData.yMax,
-              props.normalDistribution.histogramData?.y_max || 0
+              props.normalDistribution.histogram.data?.y_max || 0
             )
           : props.yMax;
 
@@ -86,10 +86,10 @@ export const Graph = observer(
         .call(d3.axisLeft(yScale).ticks(5));
 
       // Add the histogram (if it exists)
-      if (props.normalDistribution.histogramData)
+      if (props.normalDistribution.histogram.data.histogram)
         d3.select(svgRef.current)
           .selectAll("rect")
-          .data(props.normalDistribution.histogramData.histogram)
+          .data(props.normalDistribution.histogram.data.histogram)
           .join("rect")
           .attr("fill", "red")
           .attr("height", ([_, y]) => height - marginBottom - yScale(y))
@@ -97,39 +97,39 @@ export const Graph = observer(
           .attr("x", ([x]) => xScale(x))
           .attr("y", ([_, y]) => yScale(y));
 
-      d3.select(areaRef.current)
-        .attr(
-          "d",
-          d3
-            .area()
-            .x(([x, _]) => xScale(x))
-            .y0(height - marginBottom)
-            .y1(([_, y]) => yScale(y))(
-            // .curve(d3.curveBasis)
-            props.normalDistribution.graphData.coordinates
-          )
-        )
-        .attr("fill", "lightblue");
+      // d3.select(areaRef.current)
+      //   .attr(
+      //     "d",
+      //     d3
+      //       .area()
+      //       .x(([x, _]) => xScale(x))
+      //       .y0(height - marginBottom)
+      //       .y1(([_, y]) => yScale(y))(
+      //       // .curve(d3.curveBasis)
+      //       props.normalDistribution.graphData.coordinates
+      //     )
+      //   )
+      //   .attr("fill", "lightblue");
 
-      d3.select(lineRef.current)
-        .attr(
-          "d",
-          d3
-            .line()
-            .x(([x, _]) => xScale(x))
-            .y(([_, y]) => yScale(y))(
-            // .curve(d3.curveBasis)
-            props.normalDistribution.graphData.coordinates
-          )
-        )
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 2);
+      // d3.select(lineRef.current)
+      //   .attr(
+      //     "d",
+      //     d3
+      //       .line()
+      //       .x(([x, _]) => xScale(x))
+      //       .y(([_, y]) => yScale(y))(
+      //       // .curve(d3.curveBasis)
+      //       props.normalDistribution.graphData.coordinates
+      //     )
+      //   )
+      //   .attr("fill", "none")
+      //   .attr("stroke", "steelblue")
+      //   .attr("stroke-width", 2);
 
       console.timeEnd();
     }, [
       props.normalDistribution.graphData,
-      props.normalDistribution.histogramData,
+      props.normalDistribution.histogram.data.histogram,
     ]);
 
     return (
