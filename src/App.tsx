@@ -38,15 +38,19 @@ export const App = observer((props: { steps: Steps }) => {
             </>
           ))}
         </div>
-        <Output steps={props.steps} />
-        {/* {props.steps.timeHistogramData && (
-          <OutputGraph histogramData={props.steps.timeHistogramData} />
-        )}
-        {props.steps.probabilityOfSuccessHistogramData && (
-          <OutputGraph
-            histogramData={props.steps.probabilityOfSuccessHistogramData}
-          />
-        )} */}
+        <div className={styles.outputContainer}>
+          <div className={styles.graphLabelContainer}>
+            Time to completion
+            <OutputGraph histogramData={props.steps.timeHistogramData} />
+          </div>
+
+          <div className={styles.graphLabelContainer}>
+            Probability of Success
+            <OutputGraph
+              histogramData={props.steps.probabilityOfSuccessHistogramData}
+            />
+          </div>
+        </div>
       </div>
     </DndContext>
   );

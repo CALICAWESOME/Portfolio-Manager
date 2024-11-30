@@ -62,7 +62,7 @@ export const Graph = observer(
         props.yMax === undefined
           ? Math.max(
               props.normalDistribution.graphData.yMax,
-              props.normalDistribution.histogram.data?.y_max || 0
+              props.normalDistribution.histogramData.data?.y_max || 0
             )
           : props.yMax;
 
@@ -83,20 +83,20 @@ export const Graph = observer(
       // Add the y-axis.
       d3.select(yAxisRef.current)
         .attr("transform", `translate(${marginLeft},0)`)
-        .call(d3.axisLeft(yScale).ticks(5));
+        .call(d3.axisLeft(yScale).ticks(4));
 
       // Let's do some scaling shit
       const graphWidth = width - marginLeft - marginRight;
       const graphRange = xMax - xMin;
       const scaledBinWidth =
-        (props.normalDistribution.histogram.data.bin_width * graphWidth) /
+        (props.normalDistribution.histogramData.data.bin_width * graphWidth) /
         graphRange;
 
       // Add the histogram (if it exists)
-      if (props.normalDistribution.histogram.data.histogram)
+      if (props.normalDistribution.histogramData.data.histogram)
         d3.select(svgRef.current)
           .selectAll("rect")
-          .data(props.normalDistribution.histogram.data.histogram)
+          .data(props.normalDistribution.histogramData.data.histogram)
           .join("rect")
           .attr("fill", "red")
           .attr("height", ([_, y]) => height - marginBottom - yScale(y))
@@ -136,7 +136,7 @@ export const Graph = observer(
       console.timeEnd();
     }, [
       props.normalDistribution.graphData,
-      props.normalDistribution.histogram.data.histogram,
+      props.normalDistribution.histogramData.data.histogram,
     ]);
 
     return (

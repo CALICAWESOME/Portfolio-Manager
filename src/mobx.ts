@@ -4,11 +4,6 @@ import { nanoid } from "nanoid";
 
 const NUM_HISTOGRAM_SAMPLES = 10000;
 
-export interface HistogramData {
-  y_max: number;
-  histogram: [number, number][];
-}
-
 export class Steps {
   steps: { [id: string]: Step } = {
     default1: new Step(
@@ -78,16 +73,16 @@ export class Steps {
     this.stepsOrder = newOrder;
   }
 
-  get timeHistogram() {
+  get timeHistogramData() {
     const samples: number[] = [];
 
     let x_min = Number.POSITIVE_INFINITY,
       x_max = Number.NEGATIVE_INFINITY;
 
+    // Sum the samples at index i for each step
     for (let i = 0; i < NUM_HISTOGRAM_SAMPLES; i++) {
-      // Sum the samples at index i for each step
       const sample = this.stepsOrder.reduce(
-        (sum, stepId) => sum + this.steps[stepId].time.histogram.samples[i],
+        (sum, stepId) => sum + this.steps[stepId].time.histogramData.samples[i],
         0
       );
 
@@ -119,7 +114,7 @@ export class Steps {
     return { y_max, histogram };
   }
 
-  get probabilityOfSuccessHistogram() {
+  get probabilityOfSuccessHistogramData() {
     const samples: number[] = [];
 
     let x_min = Number.POSITIVE_INFINITY,
@@ -130,7 +125,7 @@ export class Steps {
       const sample = this.stepsOrder.reduce(
         (totalProb, stepId) =>
           totalProb *
-          this.steps[stepId].probabilityOfSuccess.histogram.samples[i],
+          this.steps[stepId].probabilityOfSuccess.histogramData.samples[i],
         1
       );
 
@@ -234,7 +229,7 @@ export class NormalDistribution {
     return { coordinates, yMax };
   }
 
-  get histogram() {
+  get histogramData() {
     const curve_coordinates = this.graphData.coordinates;
     const x_min = curve_coordinates[0][0];
     const x_range = curve_coordinates[curve_coordinates.length - 1][0] - x_min;

@@ -2,17 +2,11 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
 import styles from "./OutputGraph.module.css";
-import { HistogramData, Steps } from "../mobx";
-import { observer } from "mobx-react-lite";
+import { Steps } from "../mobx";
 
-// binWidth: number;
-// data: [number, number][];
-// histogramData: [number, number][];
-// xMax: number;
-// xMin: number;
-// yMax: number;
-
-export const OutputGraph = (props: { histogramData: HistogramData }) => {
+export const OutputGraph = (props: {
+  histogramData: Steps["timeHistogramData"];
+}) => {
   const areaRef = useRef<SVGPathElement>(null);
   const lineRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -38,7 +32,8 @@ export const OutputGraph = (props: { histogramData: HistogramData }) => {
     // Declare the chart dimensions and margins.
     const height = svgDomRect.height;
     const marginBottom = 20;
-    const marginSides = 30;
+    const marginLeft = 40;
+    const marginRight = 10;
     const marginTop = 10;
     const width = svgDomRect.width;
 
@@ -47,7 +42,7 @@ export const OutputGraph = (props: { histogramData: HistogramData }) => {
     const xMax = histogram[histogram.length - 1][0];
 
     const xScale = d3
-      .scaleLinear([xMin, xMax], [marginSides, width - marginSides])
+      .scaleLinear([xMin, xMax], [marginLeft, width - marginRight])
       .clamp(true);
 
     const yScale = d3.scaleLinear(
@@ -62,7 +57,7 @@ export const OutputGraph = (props: { histogramData: HistogramData }) => {
 
     // Add the y-axis.
     d3.select(yAxisRef.current)
-      .attr("transform", `translate(${marginSides},0)`)
+      .attr("transform", `translate(${marginLeft},0)`)
       .call(d3.axisLeft(yScale).ticks(5));
 
     // Add the histogram (if it exists)
@@ -82,11 +77,13 @@ export const OutputGraph = (props: { histogramData: HistogramData }) => {
   }, [props.histogramData]);
 
   return (
-    <svg className={styles["output-graph"]} ref={svgRef}>
-      <path ref={areaRef} />
-      <path ref={lineRef} />
-      <g ref={xAxisRef} />
-      <g ref={yAxisRef} />
-    </svg>
+    <div>
+      <svg className={styles["output-graph"]} ref={svgRef}>
+        <path ref={areaRef} />
+        <path ref={lineRef} />
+        <g ref={xAxisRef} />
+        <g ref={yAxisRef} />
+      </svg>
+    </div>
   );
 };

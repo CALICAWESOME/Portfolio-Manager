@@ -14,3 +14,12 @@ body {
   padding: 16px;
   width: 100%;
 }
+
+.outputContainer {
+  display: flex;
+
+  .graphLabelContainer {
+    display: flex;
+    flex-direction: column;
+  }
+}
